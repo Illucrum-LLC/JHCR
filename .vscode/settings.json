@@ -1,0 +1,6 @@
+{
+    "java.format.settings.url": "eclipse-formatter.xml",
+    "editor.minimap.maxColumn": 160,
+    "jdk.format.settingsPath": "./eclipse-formatter.xml",
+    "java.configuration.updateBuildConfiguration": "automatic"
+}
