@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.illucrum.tools</groupId>
     <artifactId>jhcr</artifactId>
-    <version>0.1</version>
+    <version>1.0.0</version>
     <name>JHCR</name>
     <description>Java Hot Code Reloader</description>
     <licenses>
