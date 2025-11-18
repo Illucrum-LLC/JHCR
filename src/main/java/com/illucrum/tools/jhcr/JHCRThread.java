@@ -70,7 +70,7 @@ public class JHCRThread extends Thread
     {
         JHCRLogger.info("Execution started.");
 
-        String pathString = preferences.getOrDefault("jhcr.projectDirectoy", System.getProperty("user.dir"));
+        String pathString = preferences.getOrDefault("jhcr.projectDirectory", System.getProperty("user.dir"));
         File watchDir;
         FileAlterationObserver observer;
 

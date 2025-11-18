@@ -52,11 +52,11 @@ public class JHCRAgent
             Map<String, String> preferences = parseArgs(args);
 
             if (preferences.get("jhcr.logger.dateFormat") != null)
-                JHCRFormatter.setDateFormat(new SimpleDateFormat("jhcr.logger.dateFormat"));
+                JHCRFormatter.setDateFormat(new SimpleDateFormat(preferences.get("jhcr.logger.dateFormat")));
             if (preferences.get("jhcr.logger.prefix") != null)
-                JHCRFormatter.setDateFormat(new SimpleDateFormat("jhcr.logger.prefix"));
+                JHCRFormatter.setPrefix(preferences.get("jhcr.logger.prefix"));
             if (preferences.get("jhcr.logger.template") != null)
-                JHCRFormatter.setDateFormat(new SimpleDateFormat("jhcr.logger.template"));
+                JHCRFormatter.setTemplate(preferences.get("jhcr.logger.template"));
 
             JHCRLogger.addHandler(preferences.getOrDefault("jhcr.logger.fileName", "JHCRLogger.log"));
 
