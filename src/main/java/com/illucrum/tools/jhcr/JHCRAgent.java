@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import com.illucrum.tools.jhcr.loader.JHCRClassLoader;
 import com.illucrum.tools.jhcr.logger.JHCRFormatter;
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
 
@@ -32,9 +33,11 @@ import com.illucrum.tools.jhcr.logger.JHCRLogger;
 public class JHCRAgent
 {
     public static Instrumentation instrumentation;
+    public static Map<String, String> preferences;
 
     /**
-     * Basic premain method. When run for the first time, sets the instrumentation and runs the {@link com.illucrum.tools.jhcr.JHCRThread} thread. I also sets up the {@link com.illucrum.tools.jhcr.logger.JHCRLogger}.
+     * Basic premain method. When run for the first time, sets the instrumentation, parses arguments and runs the {@link com.illucrum.tools.jhcr.JHCRThread}
+     * thread. I also sets up the {@link com.illucrum.tools.jhcr.logger.JHCRLogger}.
      * 
      * <p>
      * When run a more than once, it just prints a warning.
@@ -42,6 +45,9 @@ public class JHCRAgent
      * 
      * @param args
      * @param inst
+     * 
+     * @see com.illucrum.tools.jhcr.JHCRThread
+     * @see com.illucrum.tools.jhcr.logger.JHCRLogger
      */
     public static void premain (String args, Instrumentation inst)
     {
@@ -49,7 +55,7 @@ public class JHCRAgent
         {
             instrumentation = inst;
 
-            Map<String, String> preferences = parseArgs(args);
+            parseArgs(args);
 
             if (preferences.get("jhcr.logger.dateFormat") != null)
                 JHCRFormatter.setDateFormat(new SimpleDateFormat(preferences.get("jhcr.logger.dateFormat")));
@@ -60,7 +66,8 @@ public class JHCRAgent
 
             JHCRLogger.addHandler(preferences.getOrDefault("jhcr.logger.fileName", "JHCRLogger.log"));
 
-            switch (preferences.getOrDefault("jhcr.logger.level", "")) {
+            switch (preferences.getOrDefault("jhcr.logger.level", ""))
+            {
                 case "config":
                     JHCRLogger.setLevel(Level.CONFIG);
                     break;
@@ -88,7 +95,16 @@ public class JHCRAgent
             }
 
             JHCRLogger.info("Agent " + JHCRAgent.class.getName() + " executed.");
-            Thread jhcr = new JHCRThread(preferences);
+
+            ClassLoader loader = ClassLoader.getSystemClassLoader();
+
+            if (!(loader instanceof JHCRClassLoader))
+            {
+                JHCRLogger.fine("Class loader is not instance of JHCRClassLoader: " + loader.getClass().getCanonicalName() + " " + loader.getParent().getClass().getCanonicalName() + " " +loader.getParent().getParent());
+                return;
+            }
+
+            Thread jhcr = new JHCRThread();
             jhcr.setDaemon(false);
             jhcr.start();
         }
@@ -98,13 +114,14 @@ public class JHCRAgent
         }
     }
 
-    private static Map<String, String> parseArgs (String args)
+    private static void parseArgs (String args)
     {
-        Map<String, String> preferences = new HashMap<>();
+        preferences = new HashMap<>();
 
-        if(args == null) {
+        if (args == null)
+        {
             JHCRLogger.fine("No args passed");
-            return preferences;
+            return;
         }
 
         for (String arg : args.split(";"))
@@ -115,7 +132,5 @@ public class JHCRAgent
                 preferences.put(pair[0].trim(), pair[1].trim());
             }
         }
-
-        return preferences;
     }
 }

@@ -14,20 +14,17 @@
 package com.illucrum.tools.jhcr;
 
 import java.io.File;
-import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.Instrumentation;
-import java.util.Map;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
-import org.objectweb.asm.ClassReader;
 
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
-import com.illucrum.tools.jhcr.watcher.JHCRAlterationListener;
+import com.illucrum.tools.jhcr.watcher.JHCRListener;
 
 /**
- * JHCRThread is a thread started from {@link com.illucrum.tools.jhcr.JHCRAgent#premain(String, Instrumentation)} and is the main class of the HCR.
+ * JHCRThread is a thread started from {@link com.illucrum.tools.jhcr.JHCRAgent#premain(String, Instrumentation)}. Around this thread, resolves all JHCR.
  * 
  * @author Szymon Kokot
  * 
@@ -36,17 +33,12 @@ import com.illucrum.tools.jhcr.watcher.JHCRAlterationListener;
 public class JHCRThread extends Thread
 {
     private final static String FILE_EXTENSION = ".class";
-    private final static Instrumentation instrumentation = JHCRAgent.instrumentation;
-    private final Map<String, String> preferences;
 
     /**
-     * 
-     * @param preferences
-     *            Map with parsed args
+     * Empty constructor.
      */
-    public JHCRThread (Map<String, String> preferences)
+    public JHCRThread ()
     {
-        this.preferences = preferences;
     }
 
     /**
@@ -57,20 +49,20 @@ public class JHCRThread extends Thread
      * <ol>
      * <li>Reads the string path from preferences. If it can't, it tries the user.dir system property.</li>
      * <li>Creates the observer if the path is valid.</li>
-     * <li>Creates the listener by means of the {@link com.illucrum.tools.jhcr.watcher.JHCRAlterationListener} class.</li>
+     * <li>Creates the listener by means of the {@link com.illucrum.tools.jhcr.watcher.JHCRListener} class.</li>
      * <li>Creates the monitor with an interval of 1sec by default or the time specified in the preferences.</li>
      * <li>It starts the monitor</li>
      * </ol>
      * </p>
      * 
-     * @see com.illucrum.tools.jhcr.watcher.JHCRAlterationListener
+     * @see com.illucrum.tools.jhcr.watcher.JHCRListener
      */
     @Override
     public void run ()
     {
         JHCRLogger.info("Execution started.");
 
-        String pathString = preferences.getOrDefault("jhcr.projectDirectory", System.getProperty("user.dir"));
+        String pathString = JHCRAgent.preferences.getOrDefault("jhcr.projectDirectory", System.getProperty("user.dir"));
         File watchDir;
         FileAlterationObserver observer;
 
@@ -93,7 +85,7 @@ public class JHCRThread extends Thread
             return;
         }
 
-        FileAlterationListener listener = new JHCRAlterationListener(FILE_EXTENSION);
+        FileAlterationListener listener = new JHCRListener(FILE_EXTENSION);
         observer.addListener(listener);
 
         FileAlterationMonitor monitor = new FileAlterationMonitor(getInterval());
@@ -115,7 +107,7 @@ public class JHCRThread extends Thread
         long interval;
         try
         {
-            interval = Long.parseLong(preferences.get("jhcr.watcher.interval"));
+            interval = Long.parseLong(JHCRAgent.preferences.get("jhcr.watcher.interval"));
         }
         catch (Exception e)
         {
@@ -126,60 +118,5 @@ public class JHCRThread extends Thread
         JHCRLogger.finer("Interval set to " + interval + "ms.");
 
         return interval;
-    }
-
-    /**
-     * This method takes the bytecode as a byte array read from a class and attempts redefine it.
-     * 
-     * <p>
-     * If the parameter is null or empty this method does nothing.
-     * </p>
-     * 
-     * @param bytecode
-     *            byte array read directly from the .class file.
-     */
-    public static void overrideClass (byte[] bytecode)
-    {
-        JHCRLogger.finest("Overriding...");
-        if (bytecode == null || bytecode.length == 0)
-        {
-            JHCRLogger.fine("Override class bytecode null or empty.");
-            return;
-        }
-
-        // Get the ClassLoader and the class name
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        ClassReader reader = new ClassReader(bytecode);
-        String byteInternalName = reader.getClassName();
-        String byteBinaryName = byteInternalName.replaceAll("/", ".");
-
-        JHCRLogger.finer("Overriding: " + byteBinaryName);
-        // Try to load class normally
-        Class<?> clazz = null;
-        try
-        {
-            clazz = classLoader.loadClass(byteBinaryName);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            JHCRLogger.fine("Could not load class: " + byteBinaryName);
-        }
-
-        if (clazz != null)
-        {
-            // If class was loaded, try to redefine it
-            try
-            {
-                JHCRLogger.finer("Redefining: " + byteBinaryName);
-                ClassDefinition classDefinition = new ClassDefinition(clazz, bytecode);
-                instrumentation.redefineClasses(classDefinition);
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-                JHCRLogger.fine("Could not redefine class: " + byteBinaryName);
-            }
-        }
     }
 }
