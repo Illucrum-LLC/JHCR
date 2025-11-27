@@ -23,7 +23,11 @@ import com.illucrum.tools.jhcr.repo.JHCRRepository;
 /**
  * This is a wrapper class loader that allows for that makes use of {@link com.illucrum.tools.jhcr.repo.JHCRRepository} and allows classes overrides.
  * 
+ * It falls back on {@link com.illucrum.tools.jhcr.loader.JHCRURLClassLoader} to implement the {@link #appendToClassPathForInstrumentation(String)} method.
+ * 
  * @author Szymon Kokot
+ * 
+ * @see com.illucrum.tools.jhcr.loader.JHCRURLClassLoader
  */
 public class JHCRClassLoader extends ClassLoader
 {
@@ -118,6 +122,15 @@ public class JHCRClassLoader extends ClassLoader
         return super.defineClass(name, bytecode, off, len);
     }
 
+    /**
+     * This method ensures this custom class loader can be used as system class loader in modern Java applications
+     * 
+     * @param jarName the name of the dependency to be included
+     * @throws URISyntaxException
+     * @throws MalformedURLException
+     * 
+     * @see java.lang.instrument.Instrumentation#appendToSystemClassLoaderSearch(JarFile)
+     */
     public void appendToClassPathForInstrumentation (String jarName) throws URISyntaxException, MalformedURLException
     {
         System.out.println("inside appendToClassPathForInstrumentation: " + jarName);

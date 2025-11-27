@@ -47,7 +47,7 @@ public class JHCRThread extends Thread
      * <p>
      * This method:
      * <ol>
-     * <li>Reads the string path from preferences. If it can't, it tries the user.dir system property.</li>
+     * <li>Reads the directory path from preferences. If it can't, it tries the user.dir system property.</li>
      * <li>Creates the observer if the path is valid.</li>
      * <li>Creates the listener by means of the {@link com.illucrum.tools.jhcr.watcher.JHCRListener} class.</li>
      * <li>Creates the monitor with an interval of 1sec by default or the time specified in the preferences.</li>
