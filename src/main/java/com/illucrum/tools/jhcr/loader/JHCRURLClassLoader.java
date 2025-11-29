@@ -19,6 +19,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import com.illucrum.tools.jhcr.logger.JHCRLogger;
+import com.illucrum.tools.jhcr.repo.JHCRRepository;
+
 /**
  * This class ensures the custom system class loader used by JHCR can implement the
  * {@link com.illucrum.tools.jhcr.loader.JHCRClassLoader#appendToClassPathForInstrumentation(String)}.
@@ -34,18 +37,87 @@ public class JHCRURLClassLoader extends URLClassLoader
     /**
      * Constructs a new JHCRClassLoader for the given URLs.
      * 
-     * @param urls the URLs from which to load classes and resources
-     * @param parent the parent class loader for delegation
+     * @param urls
+     *            the URLs from which to load classes and resources
+     * @param parent
+     *            the parent class loader for delegation
      */
     public JHCRURLClassLoader (URL[] urls, ClassLoader parent)
     {
         super(urls, parent);
     }
 
+    @Override
+    public Class<?> loadClass (String name) throws ClassNotFoundException
+    {
+        return this.loadClass(name, false);
+    }
+
+    @Override
+    protected Class<?> loadClass (String name, boolean resolve) throws ClassNotFoundException
+    {
+        JHCRLogger.finest("Loading: " + name);
+
+        Class<?> result = JHCRRepository.get(name);
+
+        if (result != null)
+        {
+            if (resolve)
+            {
+                this.resolveClass(result);
+            }
+
+            return result;
+        }
+
+        JHCRLogger.fine("Class " + name + " not found in repository.");
+
+        try
+        {
+            result = super.loadClass(name, resolve);
+        }
+        catch (ClassNotFoundException e)
+        {
+            JHCRLogger.fine("Class " + name + " not loaded by super.");
+        }
+
+        if (result == null)
+        {
+            throw new ClassNotFoundException();
+        }
+        else if (resolve)
+        {
+            this.resolveClass(result);
+        }
+
+        JHCRRepository.put(name, result);
+
+        return result;
+    }
+
+    /**
+     * Just a wrapper for the {@link java.lang.ClassLoader#defineClass(String, byte[], int, int)}
+     * 
+     * @param name
+     *            Name of the class to be defined.
+     * @param bytecode
+     *            Bytecode of the class to be defined
+     * @param off
+     *            The start offset of the class data
+     * @param end
+     *            Length of the class data
+     * @return the class returned by {@link java.lang.ClassLoader#defineClass(String, byte[], int, int)}
+     */
+    public Class<?> defineClassWrapper (String name, byte[] bytecode, int off, int len)
+    {
+        return super.defineClass(name, bytecode, off, len);
+    }
+
     /**
      * This method converts the given string to a URL, and calls {@link #addURL(URL)}.
      * 
-     * @param jarName The path to the jar file
+     * @param jarName
+     *            The path to the jar file
      * @throws URISyntaxException
      * @throws MalformedURLException
      */
@@ -67,7 +139,6 @@ public class JHCRURLClassLoader extends URLClassLoader
         }
         catch (Exception e)
         {
-            System.out.println(e.getMessage());
             e.printStackTrace();
         }
     }

@@ -18,22 +18,30 @@ import org.objectweb.asm.commons.Remapper;
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
 
 /**
- * This class renames the class of a byte array to make sure it can be defined under some other name when it already have been defined and it's structure changed.
+ * This class renames the class of a byte array to make sure it can be defined under some other name when it already have been defined and it's structure
+ * changed.
  * 
  * @author Szymon Kokot
  */
 public class JHCRRemapper extends Remapper
 {
-    private final String oldName;
+    private String oldName;
     private String newName;
+
+    public JHCRRemapper ()
+    {
+    }
 
     /**
      * Only constructor that should be used.
      * 
-     * @param oldName original name of the class being renamed.
-     * @param suffix suffix to be used when renaming. If null, it will keep it's default value: $JHCR$
+     * @param oldName
+     *            original name of the class being renamed.
+     * @param suffix
+     *            suffix to be used when renaming. If null, it will keep it's default value: $JHCR$
      */
-    public JHCRRemapper(String oldName, String newName) {
+    public JHCRRemapper (String oldName, String newName)
+    {
         this.oldName = oldName;
         this.newName = newName;
     }
@@ -48,5 +56,15 @@ public class JHCRRemapper extends Remapper
         }
 
         return name;
+    }
+
+    public void setOldName (String oldName)
+    {
+        this.oldName = oldName;
+    }
+
+    public void setNewName (String newName)
+    {
+        this.newName = newName;
     }
 }

@@ -22,6 +22,7 @@ import org.objectweb.asm.commons.ClassRemapper;
 
 import com.illucrum.tools.jhcr.JHCRAgent;
 import com.illucrum.tools.jhcr.loader.JHCRClassLoader;
+import com.illucrum.tools.jhcr.loader.JHCRURLClassLoader;
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
 import com.illucrum.tools.jhcr.repo.JHCRRepository;
 import com.illucrum.tools.jhcr.writer.JHCRRemapper;
@@ -60,7 +61,7 @@ public class JHCROverrider
         String byteInternalName = reader.getClassName();
         String byteBinaryName = byteInternalName.replaceAll("/", ".");
 
-        JHCRClassLoader loader = (JHCRClassLoader) ClassLoader.getSystemClassLoader();
+        JHCRURLClassLoader loader = ((JHCRClassLoader) ClassLoader.getSystemClassLoader()).getURLClassLoader();
 
         if (loader == null)
         {
@@ -77,24 +78,40 @@ public class JHCROverrider
         }
         catch (Exception e)
         {
-            e.printStackTrace();
             JHCRLogger.fine("Could not load class: " + byteBinaryName);
             return;
         }
 
         if (clazz != null)
         {
-            // If class was loaded, try to redefine it
+            String classBinaryName = clazz.getCanonicalName();
+            String classInternalName = classBinaryName.replaceAll("\\.", "/");
+
+            JHCRRemapper remapper = new JHCRRemapper(byteInternalName, classInternalName);
+
+            ClassWriter writer = new ClassWriter(reader, 0);
+            ClassVisitor visitor = new ClassRemapper(writer, remapper);
+            byte[] newBytecode;
+
+            if (!classBinaryName.equals(byteBinaryName))
+            {
+                reader.accept(visitor, 0);
+                newBytecode = writer.toByteArray();
+            }
+            else
+            {
+                newBytecode = bytecode;
+            }
+
             try
             {
-                JHCRLogger.finer("Redefining: " + byteBinaryName);
-                ClassDefinition classDefinition = new ClassDefinition(clazz, bytecode);
+                JHCRLogger.finer("Redefining: " + classBinaryName);
+                ClassDefinition classDefinition = new ClassDefinition(clazz, newBytecode);
                 JHCRAgent.instrumentation.redefineClasses(classDefinition);
                 return;
             }
             catch (Exception e)
             {
-                e.printStackTrace();
                 JHCRLogger.fine("Could not redefine class: " + byteBinaryName);
             }
 
@@ -105,21 +122,23 @@ public class JHCROverrider
             String newInternalName = byteInternalName + suffix + counter;
             String newBinaryName = byteBinaryName + suffix + counter;
 
-            JHCRRemapper remapper = new JHCRRemapper(byteInternalName, newInternalName);
-
-            ClassWriter writer = new ClassWriter(reader, 0);
-            ClassVisitor visitor = new ClassRemapper(writer, remapper);
-
-            reader.accept(visitor, 0);
-            byte[] newBytecode = writer.toByteArray();
-
             JHCRLogger.finest("New internal: " + newInternalName + "; New binary: " + newBinaryName);
+
+            remapper.setNewName(newInternalName);
+            reader.accept(visitor, 0);
+            newBytecode = writer.toByteArray();
 
             Class<?> newClazz = loader.defineClassWrapper(newBinaryName, newBytecode, 0, newBytecode.length);
 
             JHCRRepository.put(byteBinaryName, newClazz);
+            try
+            {
 
-            JHCRLogger.finest(JHCRRepository.staticToString());
+                loader.loadClass(byteBinaryName);
+            }
+            catch (Exception e)
+            {
+            }
         }
     }
 }
