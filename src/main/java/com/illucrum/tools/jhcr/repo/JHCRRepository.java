@@ -13,7 +13,9 @@
  */
 package com.illucrum.tools.jhcr.repo;
 
+import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
@@ -38,7 +40,7 @@ public class JHCRRepository
      * @param clazz
      *            the class to be stored
      */
-    public static void put (Class<?> clazz)
+    public static synchronized void put (Class<?> clazz)
     {
         put(clazz.getName(), clazz);
     }
@@ -46,14 +48,12 @@ public class JHCRRepository
     /**
      * It stores a class given it's defining class loader and a name. As the class name is a separate argument, you can overwrite already stored classes.
      * 
-     * @param classLoader
-     *            classes' to be stored defining class loader
      * @param clazz
      *            the class to be stored
      * @param className
      *            the canonical name of the class to be stored.
      */
-    public static void put (String className, Class<?> clazz)
+    public static synchronized void put (String className, Class<?> clazz)
     {
         JHCRLogger.finer("Saving " + className + "...");
 
@@ -63,13 +63,11 @@ public class JHCRRepository
     /**
      * Returns a stored class given it's defining class loader and a name. May return null.
      * 
-     * @param classLoader
-     *            the defining class loader of the class to be returned
      * @param className
      *            the name of the class to be returned
      * @return returns the class or null if none is found
      */
-    public static Class<?> get (String className)
+    public static synchronized Class<?> get (String className)
     {
         JHCRLogger.finer("Retrieving " + className + "...");
 
@@ -81,7 +79,7 @@ public class JHCRRepository
      * 
      * @return the contents of the repository.
      */
-    public static String staticToString ()
+    public static synchronized String staticToString ()
     {
         String result = "JHCRRepository:\n";
 
