@@ -13,9 +13,7 @@
  */
 package com.illucrum.tools.jhcr.repo;
 
-import java.util.HashSet;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.WeakHashMap;
 
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
