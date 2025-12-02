@@ -2,9 +2,9 @@
 Java Hot Code Reloader provides a custom agent that allows to reload your Java code during runtime.
 
 ## Usage
-Download the latest jar from the release section. When starting your Java application, add -javaagent flag. For example:
+Download the latest jar from the release section. When starting your Java application, use our custom class loader and java agent. For example:
 ```
--javaagent:path-to-jhcr-jar/jhcr-x.x.x.jar=argument-string
+-Djava.system.class.loader=com.illucrum.tools.jhcr.loader.JHCRClassLoader -javaagent:path-to-jhcr-jar/jhcr-x.x.x.jar=argument-string
 ```
 
 ### Argument string
