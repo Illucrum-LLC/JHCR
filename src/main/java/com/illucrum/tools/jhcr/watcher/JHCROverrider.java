@@ -34,7 +34,6 @@ import com.illucrum.tools.jhcr.writer.JHCRRemapper;
  */
 public class JHCROverrider
 {
-    private static final String SUFFIX = "$JHCR$";
     private static long counter = -1;
 
     /**
@@ -118,7 +117,7 @@ public class JHCROverrider
             JHCRLogger.finer("Overriding: " + byteBinaryName);
 
             counter++;
-            String suffix = JHCRAgent.preferences.getOrDefault("jhcr.suffix", SUFFIX);
+            String suffix = JHCRAgent.preferences.get("jhcr.suffix");
             String newInternalName = byteInternalName + suffix + counter;
             String newBinaryName = byteBinaryName + suffix + counter;
 
@@ -131,14 +130,6 @@ public class JHCROverrider
             Class<?> newClazz = loader.defineClassWrapper(newBinaryName, newBytecode, 0, newBytecode.length);
 
             JHCRRepository.put(byteBinaryName, newClazz);
-            try
-            {
-
-                loader.loadClass(byteBinaryName);
-            }
-            catch (Exception e)
-            {
-            }
         }
     }
 }

@@ -75,10 +75,23 @@ public class JHCRURLClassLoader extends URLClassLoader
         try
         {
             result = super.loadClass(name, resolve);
+            JHCRRepository.put(name, result);
         }
         catch (ClassNotFoundException e)
         {
             JHCRLogger.fine("Class " + name + " not loaded by super.");
+        }
+
+        if (result == null && JHCRClassLoader.parent != null)
+        {
+            try
+            {
+                result = JHCRClassLoader.parent.loadClass(name);
+            }
+            catch (Exception e)
+            {
+                JHCRLogger.fine("Class " + name + " not loaded by parent.");
+            }
         }
 
         if (result == null)
@@ -89,8 +102,6 @@ public class JHCRURLClassLoader extends URLClassLoader
         {
             this.resolveClass(result);
         }
-
-        JHCRRepository.put(name, result);
 
         return result;
     }

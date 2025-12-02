@@ -104,6 +104,8 @@ public class JHCRAgent
                 return;
             }
 
+            instrumentation.addTransformer(new JHCRTransformer());
+
             Thread jhcr = new JHCRThread();
             jhcr.setDaemon(false);
             jhcr.start();
@@ -117,6 +119,7 @@ public class JHCRAgent
     private static void parseArgs (String args)
     {
         preferences = new HashMap<>();
+        preferences.put("jhcr.suffix", "$JHCR$");
 
         if (args == null)
         {

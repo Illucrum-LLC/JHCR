@@ -32,6 +32,7 @@ import com.illucrum.tools.jhcr.logger.JHCRLogger;
 public class JHCRClassLoader extends ClassLoader
 {
     private JHCRURLClassLoader urlLoader;
+    public static ClassLoader parent;
 
     /**
      * Constructs a new JHCRClassLoader
@@ -43,6 +44,8 @@ public class JHCRClassLoader extends ClassLoader
         super(parent);
         String separator = System.getProperty("path.separator");
         String classPath = System.getProperty("java.class.path");
+
+        JHCRClassLoader.parent = parent;
 
         if (classPath != null)
         {
