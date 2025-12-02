@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 /**
  * Logger for the JHCR. Enables printing logs in a separate file.
  * 
- * <p>Note, that before using the logger, you should call the {@link this#addHandler(String)} method.</p>
+ * <p>Note, that before using the logger, {@link this#addHandler(String)} method should be called.</p>
  * 
  * @author Szymon Kokot
  */

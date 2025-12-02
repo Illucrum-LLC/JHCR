@@ -21,9 +21,9 @@ import java.util.jar.JarFile;
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
 
 /**
- * This is a wrapper class loader that allows for that makes use of {@link com.illucrum.tools.jhcr.repo.JHCRRepository} and allows classes overrides.
+ * Intended to be the system class loader. It fallsback on {@link com.illucrum.tools.jhcr.loader.JHCRURLClassLoader} for class loading.
  * 
- * It falls back on {@link com.illucrum.tools.jhcr.loader.JHCRURLClassLoader} to implement the {@link #appendToClassPathForInstrumentation(String)} method.
+ * It also implements the {@link #appendToClassPathForInstrumentation(String)} method.
  * 
  * @author Szymon Kokot
  * 
@@ -37,7 +37,7 @@ public class JHCRClassLoader extends ClassLoader
     /**
      * Constructs a new JHCRClassLoader
      * 
-     * @param parent
+     * @param parent parent class loader
      */
     public JHCRClassLoader (ClassLoader parent)
     {
@@ -120,6 +120,7 @@ public class JHCRClassLoader extends ClassLoader
 
     /**
      * Getter method for the {@link com.illucrum.tools.jhcr.loader.JHCRURLClassLoader} in use.
+     * 
      * @return the url class loader in use
      */
     public JHCRURLClassLoader getURLClassLoader ()

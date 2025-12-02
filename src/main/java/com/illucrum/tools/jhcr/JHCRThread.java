@@ -35,7 +35,7 @@ public class JHCRThread extends Thread
     private final static String FILE_EXTENSION = ".class";
 
     /**
-     * Empty constructor.
+     * Constructs a new {@link com.illucrum.tools.jhcr.JHCRThread}.
      */
     public JHCRThread ()
     {

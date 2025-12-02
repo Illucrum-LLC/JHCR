@@ -24,9 +24,7 @@ import com.illucrum.tools.jhcr.JHCRAgent;
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
 
 /**
- * Class visitor for JHCR. It triggers bytecode manipulation of the {@link java.lang.ClassLoader#loadClass(String, boolean)} and
- * {@link java.net.URLClassLoader#loadClass(String, boolean)} methods found in any classes extending or being {@link java.lang.ClassLoader} or
- * {@link java.net.URLClassLoader}.
+ * This class is responsible of rewriting constructor calls to call {@link com.illucrum.tools.jhcr.loader.JHCRConstructor#construct(String, Class<?>[], Object[])} instead and correct overriden classes super names
  * 
  * @author Szymon Kokot
  */

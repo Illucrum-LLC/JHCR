@@ -22,21 +22,7 @@ import org.objectweb.asm.commons.AnalyzerAdapter;
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
 
 /**
- * Method visitor for JHCR. It adds code to the {@link java.lang.ClassLoader#loadClass(String, boolean)} and
- * {@link java.net.URLClassLoader#loadClass(String, boolean)} methods.
- * 
- * At the beggining the equivalent of:
- * <code>
- * if(JHCRRepository.get(this, name) != null)
- *  return JHCRRepository.get(this, name);
- * </code>
- * 
- * At the end the equivalent of:
- * <code>
- * JHCRRepository.put(this, clazz);
- * return clazz;
- * </code>
- * Where clazz is the class to be returned.
+ * This method visitor is responsible of rewriting constructor calls to call {@link com.illucrum.tools.jhcr.loader.JHCRConstructor#construct(String, Class<?>[], Object[])} instead.
  * 
  * @author Szymon Kokot
  */
@@ -46,6 +32,12 @@ class JHCRConstructorRewriter extends MethodVisitor
     private int currentLine = -1;
     private boolean newHanging = false;
 
+    /**
+     * Constructs a new {@link com.illucrum.tools.jhcr.writer.JHCRConstructorRewriter}.
+     * 
+     * @param mv
+     * @param methodName
+     */
     public JHCRConstructorRewriter (AnalyzerAdapter mv, String methodName)
     {
         super(Opcodes.ASM9, mv);

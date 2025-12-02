@@ -18,6 +18,11 @@ import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
+/**
+ * Formatter for the {@link com.illucrum.tools.jhcr.logger.JHCRLogger}.
+ * 
+ * @author Szymon Kokot
+ */
 public class JHCRFormatter extends Formatter
 {
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");

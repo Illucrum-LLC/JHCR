@@ -26,7 +26,7 @@ import com.illucrum.tools.jhcr.logger.JHCRLogger;
 import com.illucrum.tools.jhcr.writer.JHCRClassVisitor;
 
 /**
- * Transformer for JHCR. It triggers bytecode manipulation of the class loaders. Does nothing for classes being redefined or retransformed.
+ * Transformer for JHCR. It triggers bytecode manipulation, for classes loaded by {@link com.illucrum.tools.jhcr.loader.JHCRURLClassLoader}.
  * 
  * @author Szymon Kokot
  * 

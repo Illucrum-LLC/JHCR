@@ -31,6 +31,10 @@ public class JHCRListener extends FileAlterationListenerAdaptor
 {
     private final String fileExtension;
 
+    /**
+     * Constructs a new {@link com.illucrum.tools.jhcr.watcher.JHCRListener}
+     * @param fileExtension
+     */
     public JHCRListener (String fileExtension)
     {
         this.fileExtension = fileExtension;

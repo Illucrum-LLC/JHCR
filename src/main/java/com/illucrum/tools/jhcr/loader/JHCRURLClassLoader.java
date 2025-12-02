@@ -23,12 +23,9 @@ import com.illucrum.tools.jhcr.logger.JHCRLogger;
 import com.illucrum.tools.jhcr.repo.JHCRRepository;
 
 /**
- * This class ensures the custom system class loader used by JHCR can implement the
- * {@link com.illucrum.tools.jhcr.loader.JHCRClassLoader#appendToClassPathForInstrumentation(String)}.
+ * Application class loader for JHCR. It allows for class overriding.
  * 
  * @author Szymon Kokot
- * 
- * @see com.illucrum.tools.jhcr.loader.JHCRClassLoader#appendToClassPathForInstrumentation(String)
  */
 public class JHCRURLClassLoader extends URLClassLoader
 {

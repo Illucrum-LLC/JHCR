@@ -24,8 +24,7 @@ import com.illucrum.tools.jhcr.logger.JHCRFormatter;
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
 
 /**
- * Basic agent for JHCR. It starts the {@link com.illucrum.tools.jhcr.JHCRThread}, which is the main class for the JHCR.
- * 
+ * Agent for JHCR.
  * @see com.illucrum.tools.jhcr.JHCRThread
  * 
  * @author SzymonKokot
@@ -36,15 +35,15 @@ public class JHCRAgent
     public static Map<String, String> preferences;
 
     /**
-     * Basic premain method. When run for the first time, sets the instrumentation, parses arguments and runs the {@link com.illucrum.tools.jhcr.JHCRThread}
-     * thread. I also sets up the {@link com.illucrum.tools.jhcr.logger.JHCRLogger}.
+     * When called for the first time, sets the instrumentation, parses arguments and runs the {@link com.illucrum.tools.jhcr.JHCRThread}
+     * thread. It also sets up the {@link com.illucrum.tools.jhcr.logger.JHCRLogger}.
      * 
      * <p>
-     * When run a more than once, it just prints a warning.
+     * When run a more than once, just prints a warning.
      * </p>
      * 
-     * @param args
-     * @param inst
+     * @param args string of arguments
+     * @param inst instrumentation
      * 
      * @see com.illucrum.tools.jhcr.JHCRThread
      * @see com.illucrum.tools.jhcr.logger.JHCRLogger

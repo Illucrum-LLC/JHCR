@@ -37,7 +37,7 @@ public class JHCROverrider
     private static long counter = -1;
 
     /**
-     * This method takes the bytecode as a byte array and attempts redefine it. If not possible, it attempts to override the original.
+     * This method takes the bytecode as a byte array and attempts redefine the class it contains. If not possible, it attempts to override the original class.
      * 
      * <p>
      * If the parameter is null or empty this method does nothing.
@@ -55,7 +55,6 @@ public class JHCROverrider
             return;
         }
 
-        // Get the ClassLoader and the class name
         ClassReader reader = new ClassReader(bytecode);
         String byteInternalName = reader.getClassName();
         String byteBinaryName = byteInternalName.replaceAll("/", ".");
