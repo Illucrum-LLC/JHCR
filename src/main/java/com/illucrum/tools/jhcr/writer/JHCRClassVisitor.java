@@ -75,6 +75,6 @@ public class JHCRClassVisitor extends ClassVisitor
 
         JHCRLogger.finer("Class visit method to rewrite constructors: " + name + " " + desc + " " + signature);
 
-        return new JHCRConstructorRewriter(analyzer, name);
+        return new JHCRInitRewriter(analyzer, name);
     }
 }

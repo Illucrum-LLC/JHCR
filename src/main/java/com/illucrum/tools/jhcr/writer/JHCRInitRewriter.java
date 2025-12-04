@@ -22,26 +22,25 @@ import org.objectweb.asm.commons.AnalyzerAdapter;
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
 
 /**
- * This method visitor is responsible of rewriting constructor calls to call {@link com.illucrum.tools.jhcr.loader.JHCRConstructor#construct(String, Class<?>[], Object[])} instead.
+ * This method visitor is responsible of rewriting constructor calls to call {@link com.illucrum.tools.jhcr.loader.JHCRConstructor#construct(String, Class<?>[],
+ * Object[])} instead.
  * 
  * @author Szymon Kokot
  */
-class JHCRConstructorRewriter extends MethodVisitor
+class JHCRInitRewriter extends MethodVisitor
 {
-    private final boolean constructor;
     private int currentLine = -1;
-    private boolean newHanging = false;
+    private String type = null;
 
     /**
-     * Constructs a new {@link com.illucrum.tools.jhcr.writer.JHCRConstructorRewriter}.
+     * Constructs a new {@link com.illucrum.tools.jhcr.writer.JHCRInitRewriter}.
      * 
      * @param mv
      * @param methodName
      */
-    public JHCRConstructorRewriter (AnalyzerAdapter mv, String methodName)
+    public JHCRInitRewriter (AnalyzerAdapter mv, String methodName)
     {
         super(Opcodes.ASM9, mv);
-        this.constructor = methodName.equals("<init>");
     }
 
     @Override
@@ -55,10 +54,10 @@ class JHCRConstructorRewriter extends MethodVisitor
     public void visitTypeInsn (int opcode, String type)
     {
         JHCRLogger.finer("Method type insn: " + opcode + " " + type);
-        if (opcode == Opcodes.NEW && !constructor && !type.equals("java/lang/Object"))
+        if (opcode == Opcodes.NEW && !type.equals("java/lang/Object"))
         {
             JHCRLogger.finer("NEW opcode, not in constructor, not Object");
-            this.newHanging = true;
+            this.type = type;
             return;
         }
 
@@ -69,10 +68,18 @@ class JHCRConstructorRewriter extends MethodVisitor
     public void visitInsn (int opcode)
     {
         JHCRLogger.finer("Method insn: " + opcode);
-        if (opcode == Opcodes.DUP && !constructor && this.newHanging)
+
+        if (this.isHanging())
         {
-            JHCRLogger.finer("Skipping DUP");
-            return;
+            if (opcode == Opcodes.DUP)
+            {
+                JHCRLogger.finer("Skipping DUP");
+                return;
+            }
+            else
+            {
+                super.visitTypeInsn(Opcodes.NEW, this.type);
+            }
         }
 
         super.visitInsn(opcode);
@@ -82,10 +89,10 @@ class JHCRConstructorRewriter extends MethodVisitor
     public void visitMethodInsn (int opcode, String owner, String name, String desc, boolean itf)
     {
         JHCRLogger.finer("Method visit: " + owner + " " + name + " " + desc);
-        if (!constructor && opcode == Opcodes.INVOKESPECIAL && name.equals("<init>") && this.newHanging)
+        if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>") && this.isHanging())
         {
             JHCRLogger.finer("Rewriting constructor...");
-            this.newHanging = false;
+            this.type = null;
             this.rewriteConstructor(owner, desc);
             return;
         }
@@ -221,5 +228,9 @@ class JHCRConstructorRewriter extends MethodVisitor
         }
 
         throw new IllegalArgumentException("Unsuported primitive: " + t);
+    }
+
+    private boolean isHanging() {
+        return this.type != null;
     }
 }
