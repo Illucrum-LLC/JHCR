@@ -43,11 +43,11 @@ public class JHCRTypeRewriter extends MethodVisitor
     {
         if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>"))
         {
-            super.visitMethodInsn(Opcodes.INVOKESPECIAL, this.superName, "<init>", "()V", false);
+            mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.superName, "<init>", "()V", false);
         }
         else
         {
-            super.visitMethodInsn(opcode, owner, name, desc, itf);
+            mv.visitMethodInsn(opcode, owner, name, desc, itf);
         }
     }
 }

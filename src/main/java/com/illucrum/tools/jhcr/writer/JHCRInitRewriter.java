@@ -56,7 +56,7 @@ class JHCRInitRewriter extends MethodVisitor
         JHCRLogger.finer("Method type insn: " + opcode + " " + type);
         if (opcode == Opcodes.NEW && !type.equals("java/lang/Object"))
         {
-            JHCRLogger.finer("NEW opcode, not in constructor, not Object");
+            JHCRLogger.finer("NEW opcode, not Object");
             this.type = type;
             return;
         }

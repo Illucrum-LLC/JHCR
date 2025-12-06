@@ -24,14 +24,23 @@ import com.illucrum.tools.jhcr.JHCRAgent;
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
 
 /**
- * This class is responsible of rewriting constructor calls to call {@link com.illucrum.tools.jhcr.loader.JHCRConstructor#construct(String, Class<?>[], Object[])} instead and correct overriden classes super names
+ * This class is responsible of rewriting constructor calls to call {@link com.illucrum.tools.jhcr.loader.JHCRConstructor#construct(String, Class<?>[],
+ * Object[])} instead and correct overriden classes super names
  * 
  * @author Szymon Kokot
  */
 public class JHCRClassVisitor extends ClassVisitor
 {
+    private final static int API = Opcodes.ASM9;
+    private final static String LOADER_NAME = "java.lang.ClassLoader";
+    private final static String URL_LOADER_NAME = "java.net.URLClassLoader";
+    private final static String CUSTOM_LOADER_NAME = "com/illucrum/tools/jhcr/loader/JHCRCustomLoader";
+    private final static String DEFINE_WRAPPER_NAME = "defineClassWrapper";
+    private final static String DEFINE_WRAPPER_DESC = "(Ljava/lang/String;[BII)Ljava/lang/Class;";
     private final String suffix;
     private String superName = null;
+    private boolean loader = false;
+    private boolean visitedLoadClass = false;
 
     /**
      * Calls super ({@link org.objectweb.asm.ClassVisitor#ClassVisitor(int, ClassVisitor)}) with ASM9 opcode and the same class visitor.
@@ -42,7 +51,7 @@ public class JHCRClassVisitor extends ClassVisitor
      */
     public JHCRClassVisitor (ClassVisitor classVisitor)
     {
-        super(Opcodes.ASM9, classVisitor);
+        super(API, classVisitor);
         this.suffix = JHCRAgent.preferences.get("jhcr.suffix");
     }
 
@@ -51,6 +60,25 @@ public class JHCRClassVisitor extends ClassVisitor
     {
         JHCRLogger.finer("Class visit: " + name + " " + signature + " " + superName);
         String finalSuperName = superName;
+        String[] finalInterfaces = new String[interfaces.length + 1];
+        finalInterfaces[interfaces.length] = CUSTOM_LOADER_NAME;
+
+        if (superName.equals(LOADER_NAME) || superName.equals(URL_LOADER_NAME))
+        {
+            this.loader = true;
+            for (int i = 0; i < interfaces.length; i++)
+            {
+                if (interfaces[i].equals(CUSTOM_LOADER_NAME))
+                {
+                    finalInterfaces = null;
+                    JHCRLogger.finest("Interface: " + interfaces[i]);
+                    this.loader = false;
+                    break;
+                }
+
+                finalInterfaces[i] = interfaces[i];
+            }
+        }
 
         if (name.contains(this.suffix))
         {
@@ -59,7 +87,7 @@ public class JHCRClassVisitor extends ClassVisitor
             JHCRLogger.finer("Changing " + name + " super name " + superName + " to " + finalSuperName);
         }
 
-        super.visit(version, access, name, signature, finalSuperName, interfaces);
+        super.visit(version, access, name, signature, finalSuperName, finalInterfaces == null ? interfaces : finalInterfaces);
     }
 
     @Override
@@ -73,8 +101,42 @@ public class JHCRClassVisitor extends ClassVisitor
             return new JHCRTypeRewriter(analyzer, this.superName);
         }
 
+        if(this.loader && name.equals("loadClass") && desc.equals("(Ljava/lang/String;Z)Ljava/lang/Class;")) {
+            JHCRLogger.finer("Class visit method to modify loadClass");
+            this.visitedLoadClass = true;
+            return new JHCRLoadRewriter(analyzer);
+        }
+
         JHCRLogger.finer("Class visit method to rewrite constructors: " + name + " " + desc + " " + signature);
 
         return new JHCRInitRewriter(analyzer, name);
+    }
+
+    @Override
+    public void visitEnd ()
+    {
+        if (this.loader)
+        {
+            MethodVisitor mv = super.visitMethod(Opcodes.ACC_PUBLIC, DEFINE_WRAPPER_NAME, DEFINE_WRAPPER_DESC, null, null);
+            mv.visitCode();
+            mv.visitVarInsn(Opcodes.ALOAD, 0);
+            mv.visitVarInsn(Opcodes.ALOAD, 1);
+            mv.visitVarInsn(Opcodes.ALOAD, 2);
+            mv.visitVarInsn(Opcodes.ILOAD, 3);
+            mv.visitVarInsn(Opcodes.ILOAD, 4);
+            mv
+                    .visitMethodInsn(
+                            Opcodes.INVOKEVIRTUAL,
+                            "java/lang/ClassLoader",
+                            "defineClass",
+                            "(Ljava/lang/String;[BII)Ljava/lang/Class;",
+                            false);
+            mv.visitInsn(Opcodes.ARETURN);
+            mv.visitMaxs(4, 5); // Specify max stack and local variables
+            mv.visitEnd();
+
+        }
+
+        super.visitEnd();
     }
 }

@@ -21,7 +21,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
-import com.illucrum.tools.jhcr.loader.JHCRURLClassLoader;
+import com.illucrum.tools.jhcr.loader.JHCRCustomLoader;
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
 import com.illucrum.tools.jhcr.writer.JHCRClassVisitor;
 
@@ -38,7 +38,7 @@ public class JHCRTransformer implements ClassFileTransformer
     public byte[] transform (ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
             throws IllegalClassFormatException
     {
-        if (loader instanceof JHCRURLClassLoader)
+        if (loader instanceof JHCRCustomLoader)
         {
             JHCRLogger.finer("Transforming: " + className);
 
