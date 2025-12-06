@@ -20,11 +20,13 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import com.illucrum.tools.jhcr.loader.JHCRClassLoader;
+import com.illucrum.tools.jhcr.loader.JHCRURLClassLoader;
 import com.illucrum.tools.jhcr.logger.JHCRFormatter;
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
 
 /**
  * Agent for JHCR.
+ * 
  * @see com.illucrum.tools.jhcr.JHCRThread
  * 
  * @author SzymonKokot
@@ -42,8 +44,10 @@ public class JHCRAgent
      * When run a more than once, just prints a warning.
      * </p>
      * 
-     * @param args string of arguments
-     * @param inst instrumentation
+     * @param args
+     *            string of arguments
+     * @param inst
+     *            instrumentation
      * 
      * @see com.illucrum.tools.jhcr.JHCRThread
      * @see com.illucrum.tools.jhcr.logger.JHCRLogger
@@ -99,11 +103,36 @@ public class JHCRAgent
 
             if (!(loader instanceof JHCRClassLoader))
             {
-                JHCRLogger.fine("Class loader is not instance of JHCRClassLoader: " + loader.getClass().getCanonicalName() + " " + loader.getParent().getClass().getCanonicalName() + " " +loader.getParent().getParent());
+                JHCRLogger
+                        .fine(
+                                "Class loader is not instance of JHCRClassLoader: " + loader.getClass().getCanonicalName() + " "
+                                        + loader.getParent().getClass().getCanonicalName() + " " + loader.getParent().getParent());
                 return;
             }
 
             instrumentation.addTransformer(new JHCRTransformer());
+
+            String customLoaderName = preferences.get("jhcr.custom.loader");
+            if (customLoaderName != null)
+            {
+                try
+                {
+                    Class<?> customLoader = loader.loadClass(customLoaderName);
+                    if (customLoader.isInstance(ClassLoader.class))
+                    {
+                        JHCRURLClassLoader.customLoader = (ClassLoader) customLoader.newInstance();
+                    }
+                    else
+                    {
+                        JHCRLogger.fine("Custom class loader isn't instance of ClassLoder");
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                    JHCRLogger.fine("Failed loading custom class loader " + customLoaderName);
+                }
+            }
 
             Thread jhcr = new JHCRThread();
             jhcr.setDaemon(false);

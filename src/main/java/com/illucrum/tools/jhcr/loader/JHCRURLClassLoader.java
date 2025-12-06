@@ -31,6 +31,8 @@ public class JHCRURLClassLoader extends URLClassLoader
 {
     private static final String PROTOCOL = "file://";
 
+    public static ClassLoader customLoader;
+
     /**
      * Constructs a new JHCRClassLoader for the given URLs.
      * 
@@ -77,6 +79,18 @@ public class JHCRURLClassLoader extends URLClassLoader
         catch (ClassNotFoundException e)
         {
             JHCRLogger.fine("Class " + name + " not loaded by super.");
+        }
+
+        if (result == null && customLoader != null)
+        {
+            try
+            {
+                result = customLoader.loadClass(name);
+            }
+            catch (Exception e)
+            {
+                JHCRLogger.fine("Class " + name + " not loaded by custom loader.");
+            }
         }
 
         if (result == null && JHCRClassLoader.parent != null)
