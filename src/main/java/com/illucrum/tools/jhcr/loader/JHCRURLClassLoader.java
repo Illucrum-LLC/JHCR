@@ -27,7 +27,7 @@ import com.illucrum.tools.jhcr.repo.JHCRRepository;
  * 
  * @author Szymon Kokot
  */
-public class JHCRURLClassLoader extends URLClassLoader
+public class JHCRURLClassLoader extends URLClassLoader implements JHCRCustomLoader
 {
     private static final String PROTOCOL = "file://";
 
