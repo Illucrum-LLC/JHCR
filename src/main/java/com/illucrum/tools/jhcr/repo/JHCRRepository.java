@@ -21,7 +21,7 @@ import com.illucrum.tools.jhcr.logger.JHCRLogger;
 /**
  * JHCRRepository is a static class that is meant to store all the classes that could be reloaded in the future.
  * 
- * Each class stored is identified by it's defining class loader object and class' fully qualified name.
+ * Each class stored is identified by class' fully qualified name.
  * 
  * @author Szymon Kokot
  */
@@ -32,9 +32,8 @@ public class JHCRRepository
     /**
      * This method calls {@link #put(ClassLoader, Class, String)} with <code> clazz.getName() </code> as class name.
      * 
-     * @see #put(ClassLoader, Class<?>, String)
-     * @param classLoader
-     *            classes' to be stored defining class loader
+     * @see #put(Class<?>, String)
+     * 
      * @param clazz
      *            the class to be stored
      */
@@ -44,7 +43,7 @@ public class JHCRRepository
     }
 
     /**
-     * It stores a class given it's defining class loader and a name. As the class name is a separate argument, you can overwrite already stored classes.
+     * It stores a class given it's name. As the class name is a separate argument, you can overwrite already stored classes.
      * 
      * @param clazz
      *            the class to be stored
@@ -59,7 +58,7 @@ public class JHCRRepository
     }
 
     /**
-     * Returns a stored class given it's defining class loader and a name. May return null.
+     * Returns a stored class given it's name. May return null.
      * 
      * @param className
      *            the name of the class to be returned
