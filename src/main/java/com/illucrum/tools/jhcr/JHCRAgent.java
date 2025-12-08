@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import com.illucrum.tools.jhcr.loader.JHCRClassLoader;
-import com.illucrum.tools.jhcr.loader.JHCRURLClassLoader;
 import com.illucrum.tools.jhcr.logger.JHCRFormatter;
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
 
@@ -35,6 +34,7 @@ public class JHCRAgent
 {
     public static Instrumentation instrumentation;
     public static Map<String, String> preferences;
+    public static boolean loaded = false;
 
     /**
      * When called for the first time, sets the instrumentation, parses arguments and runs the {@link com.illucrum.tools.jhcr.JHCRThread}
@@ -54,7 +54,7 @@ public class JHCRAgent
      */
     public static void premain (String args, Instrumentation inst)
     {
-        if (null == instrumentation)
+        if (instrumentation == null)
         {
             instrumentation = inst;
 
@@ -103,40 +103,16 @@ public class JHCRAgent
 
             if (!(loader instanceof JHCRClassLoader))
             {
-                JHCRLogger
-                        .fine(
-                                "Class loader is not instance of JHCRClassLoader: " + loader.getClass().getCanonicalName() + " "
-                                        + loader.getParent().getClass().getCanonicalName() + " " + loader.getParent().getParent());
+                JHCRLogger.fine("Class loader is not instance of JHCRClassLoader: " + loader.getClass().getCanonicalName());
                 return;
             }
 
             instrumentation.addTransformer(new JHCRTransformer());
 
-            String customLoaderName = preferences.get("jhcr.custom.loader");
-            if (customLoaderName != null)
-            {
-                try
-                {
-                    Class<?> customLoader = loader.loadClass(customLoaderName);
-                    if (customLoader.isInstance(ClassLoader.class))
-                    {
-                        JHCRURLClassLoader.customLoader = (ClassLoader) customLoader.newInstance();
-                    }
-                    else
-                    {
-                        JHCRLogger.fine("Custom class loader isn't instance of ClassLoder");
-                    }
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                    JHCRLogger.fine("Failed loading custom class loader " + customLoaderName);
-                }
-            }
-
             Thread jhcr = new JHCRThread();
             jhcr.setDaemon(false);
             jhcr.start();
+            loaded = true;
         }
         else
         {
@@ -147,7 +123,7 @@ public class JHCRAgent
     private static void parseArgs (String args)
     {
         preferences = new HashMap<>();
-        preferences.put("jhcr.suffix", "$JHCR$");
+        preferences.put("jhcr.suffix", "JHCR");
 
         if (args == null)
         {

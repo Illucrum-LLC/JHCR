@@ -132,9 +132,27 @@ public class JHCROverrider
             reader.accept(visitor, 0);
             newBytecode = writer.toByteArray();
 
-            Class<?> newClazz = loader.defineClassWrapper(newBinaryName, newBytecode, 0, newBytecode.length);
+            JHCRCustomLoader customLoader = (JHCRCustomLoader) clazz.getClassLoader();
 
-            JHCRRepository.put(byteBinaryName, newClazz);
+            try
+            {
+                Class<?> newClazz = customLoader.defineClassWrapper(newBinaryName, newBytecode, 0, newBytecode.length);
+
+                if (loader.equals(customLoader))
+                {
+                    JHCRRepository.put(byteBinaryName, newClazz);
+                }
+                else
+                {
+                    JHCRCustomRepository.put(byteBinaryName, newClazz);
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                JHCRLogger.fine("Error performing override.");
+            }
+
         }
     }
 }

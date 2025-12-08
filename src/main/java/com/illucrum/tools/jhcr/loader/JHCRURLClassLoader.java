@@ -13,12 +13,14 @@
  */
 package com.illucrum.tools.jhcr.loader;
 
+import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import com.illucrum.tools.jhcr.JHCRAgent;
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
 import com.illucrum.tools.jhcr.repo.JHCRRepository;
 
@@ -32,6 +34,7 @@ public class JHCRURLClassLoader extends URLClassLoader implements JHCRCustomLoad
     private static final String PROTOCOL = "file://";
 
     public static ClassLoader customLoader;
+    private boolean loadAttempted = false;
 
     /**
      * Constructs a new JHCRClassLoader for the given URLs.
@@ -71,25 +74,40 @@ public class JHCRURLClassLoader extends URLClassLoader implements JHCRCustomLoad
 
         JHCRLogger.fine("Class " + name + " not found in repository.");
 
-        try
+        if (!this.loadAttempted && JHCRAgent.loaded)
         {
-            result = super.loadClass(name, resolve);
-            JHCRRepository.put(name, result);
-        }
-        catch (ClassNotFoundException e)
-        {
-            JHCRLogger.fine("Class " + name + " not loaded by super.");
+            this.loadCustomLoader();
         }
 
-        if (result == null && customLoader != null)
+        if (customLoader != null && !name.contains("com.illucrum.tools.jhcr."))
         {
+            JHCRLogger.finest("Loading with custom class loader...");
             try
             {
                 result = customLoader.loadClass(name);
+
+                if (result == null)
+                {
+                    JHCRLogger.fine("Custom loader returned null...");
+                }
             }
             catch (Exception e)
             {
                 JHCRLogger.fine("Class " + name + " not loaded by custom loader.");
+            }
+        }
+
+        if (result == null)
+        {
+            try
+            {
+                JHCRLogger.finest("Loading with super...");
+                result = super.loadClass(name, resolve);
+                JHCRRepository.put(name, result);
+            }
+            catch (ClassNotFoundException e)
+            {
+                JHCRLogger.fine("Class " + name + " not loaded by super.");
             }
         }
 
@@ -162,6 +180,35 @@ public class JHCRURLClassLoader extends URLClassLoader implements JHCRCustomLoad
         catch (Exception e)
         {
             e.printStackTrace();
+        }
+    }
+
+    private void loadCustomLoader ()
+    {
+        this.loadAttempted = true;
+        String customLoaderName = JHCRAgent.preferences.get("jhcr.custom.loader");
+        if (customLoaderName != null)
+        {
+            try
+            {
+                Class<?> customLoaderClass = this.loadClass("com.illucrum.test.TestLoader", false);
+                Constructor<?> customLoaderConstructor = customLoaderClass.getConstructor(ClassLoader.class);
+                Object customLoaderObject = customLoaderConstructor.newInstance(JHCRClassLoader.parent);
+                if (ClassLoader.class.isInstance(customLoaderObject))
+                {
+                    customLoader = (ClassLoader) customLoaderObject;
+                    JHCRLogger.fine("Custom class loader loaded");
+                }
+                else
+                {
+                    JHCRLogger.fine("Custom class loader isn't instance of ClassLoder");
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                JHCRLogger.fine("Failed loading custom class loader " + customLoaderName);
+            }
         }
     }
 }
