@@ -115,6 +115,7 @@
                             <Can-Redefine-Classes>true</Can-Redefine-Classes>
                             <Implementation-Title>runtime</Implementation-Title>
                             <Premain-Class>com.illucrum.tools.jhcr.JHCRAgent</Premain-Class>
+                            <Build-Jdk-Spec>${java.version}</Build-Jdk-Spec>
                         </manifestEntries>
                     </archive>
                     <finalName>${project.artifactId}-${project.version}-${custom.profile}</finalName>
@@ -128,6 +129,14 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>
