@@ -22,8 +22,10 @@ import org.objectweb.asm.commons.ClassRemapper;
 
 import com.illucrum.tools.jhcr.JHCRAgent;
 import com.illucrum.tools.jhcr.loader.JHCRClassLoader;
+import com.illucrum.tools.jhcr.loader.JHCRCustomLoader;
 import com.illucrum.tools.jhcr.loader.JHCRURLClassLoader;
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
+import com.illucrum.tools.jhcr.repo.JHCRCustomRepository;
 import com.illucrum.tools.jhcr.repo.JHCRRepository;
 import com.illucrum.tools.jhcr.writer.JHCRRemapper;
 
@@ -116,6 +118,10 @@ public class JHCROverrider
             JHCRLogger.finer("Overriding: " + byteBinaryName);
 
             counter++;
+            reader = new ClassReader(bytecode);
+            writer = new ClassWriter(reader, 0);
+            visitor = new ClassRemapper(writer, remapper);
+
             String suffix = JHCRAgent.preferences.get("jhcr.suffix");
             String newInternalName = byteInternalName + suffix + counter;
             String newBinaryName = byteBinaryName + suffix + counter;
