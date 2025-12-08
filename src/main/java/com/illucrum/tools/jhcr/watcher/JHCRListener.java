@@ -33,7 +33,8 @@ public class JHCRListener extends FileAlterationListenerAdaptor
 
     /**
      * Constructs a new {@link com.illucrum.tools.jhcr.watcher.JHCRListener}
-     * @param fileExtension
+     * 
+     * @param fileExtension the extensions of the files that should be watched
      */
     public JHCRListener (String fileExtension)
     {
@@ -82,7 +83,7 @@ public class JHCRListener extends FileAlterationListenerAdaptor
             catch (Exception e)
             {
                 e.printStackTrace();
-                JHCRLogger.warning("Error loading a mmodified file: " + file.getAbsolutePath());
+                JHCRLogger.warning("Error loading a modified file: " + file.getAbsolutePath());
             }
         }
     }

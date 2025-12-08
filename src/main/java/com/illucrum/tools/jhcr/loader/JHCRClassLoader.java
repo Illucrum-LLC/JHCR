@@ -102,7 +102,7 @@ public class JHCRClassLoader extends ClassLoader
             }
             catch (ClassNotFoundException e)
             {
-                JHCRLogger.fine("Class " + name + " not loaded by parent.");
+                JHCRLogger.fine("Class " + name + " not loaded by super.");
             }
         }
 

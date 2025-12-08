@@ -29,6 +29,12 @@ import com.illucrum.tools.jhcr.logger.JHCRLogger;
  */
 class JHCRInitRewriter extends MethodVisitor
 {
+    private final static String CLASS_NAME = "java/lang/Class";
+    private final static String CLASS_DESC = "Ljava/lang/Class;";
+    private final static String OBJECT_NAME = "java/lang/Object";
+    private final static String CONSTRUCTOR_NAME = "com/illucrum/tools/jhcr/loader/JHCRConstructor";
+    private final static String CONSTRUCTOR_CONSTRUCT = "construct";
+    private final static String CONSTRUCTOR_DESC = "(Ljava/lang/String;[Ljava/lang/Class;[Ljava/lang/Object;)Ljava/lang/Object;";
     private int currentLine = -1;
     private String type = null;
 
@@ -54,7 +60,7 @@ class JHCRInitRewriter extends MethodVisitor
     public void visitTypeInsn (int opcode, String type)
     {
         JHCRLogger.finer("Method type insn: " + opcode + " " + type);
-        if (opcode == Opcodes.NEW && !type.equals("java/lang/Object"))
+        if (opcode == Opcodes.NEW && !type.equals(OBJECT_NAME))
         {
             JHCRLogger.finer("NEW opcode, not Object");
             this.type = type;
@@ -115,7 +121,7 @@ class JHCRInitRewriter extends MethodVisitor
         Type[] argTypes = Type.getArgumentTypes(desc);
 
         this.pushInt(mv, argTypes.length);
-        mv.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/Class");
+        mv.visitTypeInsn(Opcodes.ANEWARRAY, CLASS_NAME);
 
         for (int i = 0; i < argTypes.length; i++)
         {
@@ -126,7 +132,7 @@ class JHCRInitRewriter extends MethodVisitor
         }
 
         this.pushInt(mv, argTypes.length);
-        mv.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/Object");
+        mv.visitTypeInsn(Opcodes.ANEWARRAY, OBJECT_NAME);
 
         for (int i = 0; i < argTypes.length; i++)
         {
@@ -139,9 +145,9 @@ class JHCRInitRewriter extends MethodVisitor
         mv
                 .visitMethodInsn(
                         Opcodes.INVOKESTATIC,
-                        "com/illucrum/tools/jhcr/loader/JHCRConstructor",
-                        "construct",
-                        "(Ljava/lang/String;[Ljava/lang/Class;[Ljava/lang/Object;)Ljava/lang/Object;",
+                        CONSTRUCTOR_NAME,
+                        CONSTRUCTOR_CONSTRUCT,
+                        CONSTRUCTOR_DESC,
                         false);
 
         mv.visitTypeInsn(Opcodes.CHECKCAST, owner);
@@ -168,28 +174,28 @@ class JHCRInitRewriter extends MethodVisitor
         switch (t.getSort())
         {
             case Type.BOOLEAN:
-                mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Boolean", "TYPE", "Ljava/lang/Class;");
+                mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Boolean", "TYPE", CLASS_DESC);
                 break;
             case Type.BYTE:
-                mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Byte", "TYPE", "Ljava/lang/Class;");
+                mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Byte", "TYPE", CLASS_DESC);
                 break;
             case Type.CHAR:
-                mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Character", "TYPE", "Ljava/lang/Class;");
+                mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Character", "TYPE", CLASS_DESC);
                 break;
             case Type.DOUBLE:
-                mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Double", "TYPE", "Ljava/lang/Class;");
+                mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Double", "TYPE", CLASS_DESC);
                 break;
             case Type.FLOAT:
-                mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Float", "TYPE", "Ljava/lang/Class;");
+                mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Float", "TYPE", CLASS_DESC);
                 break;
             case Type.INT:
-                mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Integer", "TYPE", "Ljava/lang/Class;");
+                mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Integer", "TYPE", CLASS_DESC);
                 break;
             case Type.LONG:
-                mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Long", "TYPE", "Ljava/lang/Class;");
+                mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Long", "TYPE", CLASS_DESC);
                 break;
             case Type.SHORT:
-                mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Short", "TYPE", "Ljava/lang/Class;");
+                mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Short", "TYPE", CLASS_DESC);
                 break;
         }
     }
