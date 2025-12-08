@@ -22,8 +22,12 @@ Supported argument keys:
 | jhcr.logger.dateFormat | Allows you to specify the string format used by the logger. This value will be passed as is to the SimpleDateFormat class constructor. | Optional | 1.0.0+ | dd/MM/yyyy HH:mm:ss.SSS |
 | jhcr.logger.template | Allows you to specify a template used by the logger. | Optional | 1.0.0+ | [%s] %s: %s: %s\n -> (Date, prefix, level, message) |
 | jhcr.logger.level | Allows to specify the what level of logs you want printed. Can be set to: config, fine, finer, finest, info, severe or warning.  | Optional | 1.0.0+ | all |
+| jhcr.custom.loader | Allows to specify a custom class loader to be used  | Optional | 2.1.0+ | empty |
 
 ## Features
+### 2.1.0
+ - Added spport for custom class loaders
+
 ### 2.0.0
  - Watches a repository for changes in ```.class``` files.
  - If no changes in the class structure, class is redefined.
@@ -35,6 +39,3 @@ Supported argument keys:
  - Watches a repository for changes in ```.class``` files.
  - If no changes in the class structure, class is redefined.
  - Redefined classes change their behavior immediately.
-
-### Does not support
- - Custom class loaders
