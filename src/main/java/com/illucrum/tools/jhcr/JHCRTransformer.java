@@ -57,7 +57,6 @@ public class JHCRTransformer implements ClassFileTransformer
                 e.printStackTrace();
                 JHCRLogger.fine("Error on class visiting: " + className + ": " + e.getMessage());
             }
-
         }
 
         return classfileBuffer;
