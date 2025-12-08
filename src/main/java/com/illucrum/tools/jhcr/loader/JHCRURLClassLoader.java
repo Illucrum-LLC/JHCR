@@ -23,16 +23,15 @@ import java.net.URLClassLoader;
 import com.illucrum.tools.jhcr.JHCRAgent;
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
 import com.illucrum.tools.jhcr.repo.JHCRRepository;
+import com.illucrum.tools.jhcr.vars.JHCRVariables;
 
 /**
  * Application class loader for JHCR. It allows for class overriding.
  * 
  * @author Szymon Kokot
  */
-public class JHCRURLClassLoader extends URLClassLoader implements JHCRCustomLoader
+public class JHCRURLClassLoader extends URLClassLoader implements JHCRCustomLoader, JHCRVariables
 {
-    private static final String PROTOCOL = "file://";
-
     public static ClassLoader customLoader;
     private boolean loadAttempted = false;
 

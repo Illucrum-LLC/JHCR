@@ -22,6 +22,7 @@ import org.objectweb.asm.commons.AnalyzerAdapter;
 
 import com.illucrum.tools.jhcr.JHCRAgent;
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
+import com.illucrum.tools.jhcr.vars.JHCRVariables;
 
 /**
  * This class is responsible of rewriting constructor calls to call {@link com.illucrum.tools.jhcr.loader.JHCRConstructor#construct(String, Class<?>[],
@@ -29,16 +30,8 @@ import com.illucrum.tools.jhcr.logger.JHCRLogger;
  * 
  * @author Szymon Kokot
  */
-public class JHCRClassVisitor extends ClassVisitor
+public class JHCRClassVisitor extends ClassVisitor implements JHCRVariables
 {
-    private final static int API = Opcodes.ASM9;
-    private final static String LOADER_NAME = "java/lang/ClassLoader";
-    private final static String URL_LOADER_NAME = "java/net/URLClassLoader";
-    private final static String CUSTOM_LOADER_NAME = "com/illucrum/tools/jhcr/loader/JHCRCustomLoader";
-    private final static String DEFINE_WRAPPER_NAME = "defineClassWrapper";
-    private final static String DEFINE_WRAPPER_DESC = "(Ljava/lang/String;[BII)Ljava/lang/Class;";
-    private final static String LOAD_NAME = "loadClass";
-    private final static String LOAD_DESC = "(Ljava/lang/String;Z)Ljava/lang/Class;";
     private final String suffix;
     private String superName = null;
     private boolean loader = false;

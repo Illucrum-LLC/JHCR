@@ -18,19 +18,15 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AnalyzerAdapter;
 
+import com.illucrum.tools.jhcr.vars.JHCRVariables;
+
 /**
  * Method visitor responsible for bytecode manipulation in the {@link java.lang.ClassLoader#loadClass(String, boolean)} methods of custom class loaders.
  * 
  * @author Szymon Kokot
  */
-public class JHCRLoadRewriter extends MethodVisitor
+public class JHCRLoadRewriter extends MethodVisitor implements JHCRVariables
 {
-    private static final String CUSTOM_REPO_NAME = "com/illucrum/tools/jhcr/repo/JHCRCustomRepository";
-    private static final String CUSTOM_REPO_GET_NAME = "get";
-    private static final String CUSTOM_REPO_GET_DESC = "(Ljava/lang/ClassLoader;Ljava/lang/String;)Ljava/lang/Class;";
-    private static final String CUSTOM_REPO_PUT_NAME = "put";
-    private static final String CUSTOM_REPO_PUT_DESC = "(Ljava/lang/String;Ljava/lang/Class;)V";
-
     /**
      * Constructs a new JHCRLoadRewriter.
      * 
@@ -53,7 +49,7 @@ public class JHCRLoadRewriter extends MethodVisitor
         Label ifNull = new Label();
         mv.visitJumpInsn(Opcodes.IFNULL, ifNull);
         mv.visitInsn(Opcodes.ARETURN);
-        
+
         mv.visitLabel(ifNull);
         mv.visitInsn(Opcodes.POP);
     }

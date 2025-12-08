@@ -20,6 +20,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.AnalyzerAdapter;
 
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
+import com.illucrum.tools.jhcr.vars.JHCRVariables;
 
 /**
  * This method visitor is responsible of rewriting constructor calls to call {@link com.illucrum.tools.jhcr.loader.JHCRConstructor#construct(String, Class<?>[],
@@ -27,14 +28,8 @@ import com.illucrum.tools.jhcr.logger.JHCRLogger;
  * 
  * @author Szymon Kokot
  */
-class JHCRInitRewriter extends MethodVisitor
+class JHCRInitRewriter extends MethodVisitor implements JHCRVariables
 {
-    private final static String CLASS_NAME = "java/lang/Class";
-    private final static String CLASS_DESC = "Ljava/lang/Class;";
-    private final static String OBJECT_NAME = "java/lang/Object";
-    private final static String CONSTRUCTOR_NAME = "com/illucrum/tools/jhcr/loader/JHCRConstructor";
-    private final static String CONSTRUCTOR_CONSTRUCT = "construct";
-    private final static String CONSTRUCTOR_DESC = "(Ljava/lang/String;[Ljava/lang/Class;[Ljava/lang/Object;)Ljava/lang/Object;";
     private int currentLine = -1;
     private String type = null;
 
@@ -146,8 +141,8 @@ class JHCRInitRewriter extends MethodVisitor
                 .visitMethodInsn(
                         Opcodes.INVOKESTATIC,
                         CONSTRUCTOR_NAME,
-                        CONSTRUCTOR_CONSTRUCT,
-                        CONSTRUCTOR_DESC,
+                        CONSTRUCT_NAME,
+                        CONSTRUCT_DESC,
                         false);
 
         mv.visitTypeInsn(Opcodes.CHECKCAST, owner);

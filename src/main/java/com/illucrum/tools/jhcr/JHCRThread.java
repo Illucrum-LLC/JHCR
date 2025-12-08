@@ -21,6 +21,7 @@ import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 
 import com.illucrum.tools.jhcr.logger.JHCRLogger;
+import com.illucrum.tools.jhcr.vars.JHCRVariables;
 import com.illucrum.tools.jhcr.watcher.JHCRListener;
 
 /**
@@ -30,10 +31,8 @@ import com.illucrum.tools.jhcr.watcher.JHCRListener;
  * 
  * @see com.illucrum.intershop.jhcr.JHCRAgent
  */
-public class JHCRThread extends Thread
+public class JHCRThread extends Thread implements JHCRVariables
 {
-    private final static String FILE_EXTENSION = ".class";
-
     /**
      * Constructs a new {@link com.illucrum.tools.jhcr.JHCRThread}.
      */
