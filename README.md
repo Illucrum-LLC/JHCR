@@ -1,5 +1,6 @@
 # JHCR
 Java Hot Code Reloader provides a custom agent that allows to reload your Java code during runtime.
+Link for the documentation of the project: [jhcr.illucrum.com](https://jhcr.illucrum.com/)
 
 ## Usage
 Download the latest jar from the release section. When starting your Java application, use our custom class loader and java agent. For example:
