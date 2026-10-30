@@ -26,7 +26,7 @@ import com.illucrum.tools.jhcr.logger.JHCRLogger;
  */
 public class JHCRCustomRepository
 {
-    private static final WeakHashMap<ClassLoader, WeakHashMap<String, Class<?>>> classes = new WeakHashMap<>();
+    private static final WeakHashMap <ClassLoader, WeakHashMap<String, Class<?>>> classes = new WeakHashMap<>();
 
     /**
      * This method calls {@link #put(String, Class)} with <code> clazz.getName() </code> as class name.

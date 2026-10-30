@@ -19,7 +19,7 @@ import com.illucrum.tools.jhcr.logger.JHCRLogger;
 
 /**
  * This class is has one static method that is used instead of construtors as part of the bytcode manipulation done by
- * {@link com.illucrum.tools.jhcr.writer.JHCRConstructorRewriter}.
+ * {@link com.illucrum.tools.jhcr.writer.JHCRInitRewriter}.
  * 
  * @author Szymon Kokot
  */

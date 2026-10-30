@@ -28,8 +28,6 @@ import com.illucrum.tools.jhcr.watcher.JHCRListener;
  * JHCRThread is a thread started from {@link com.illucrum.tools.jhcr.JHCRAgent#premain(String, Instrumentation)}. Around this thread, resolves all JHCR.
  * 
  * @author Szymon Kokot
- * 
- * @see com.illucrum.intershop.jhcr.JHCRAgent
  */
 public class JHCRThread extends Thread implements JHCRVariables
 {
@@ -43,8 +41,7 @@ public class JHCRThread extends Thread implements JHCRVariables
     /**
      * The main method of the thread. It initializes the monitor to watch the .class files from all cartridges included in the project
      * 
-     * <p>
-     * This method:
+     * <p>This method: </p>
      * <ol>
      * <li>Reads the directory path from preferences. If it can't, it tries the user.dir system property.</li>
      * <li>Creates the observer if the path is valid.</li>
@@ -52,7 +49,6 @@ public class JHCRThread extends Thread implements JHCRVariables
      * <li>Creates the monitor with an interval of 1sec by default or the time specified in the preferences.</li>
      * <li>It starts the monitor</li>
      * </ol>
-     * </p>
      * 
      * @see com.illucrum.tools.jhcr.watcher.JHCRListener
      */

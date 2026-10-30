@@ -31,7 +31,7 @@ public interface JHCRCustomLoader
      *            Bytecode of the class to be defined
      * @param off
      *            The start offset of the class data
-     * @param end
+     * @param len
      *            Length of the class data
      * @return the class returned by {@link java.lang.ClassLoader#defineClass(String, byte[], int, int)}
      */

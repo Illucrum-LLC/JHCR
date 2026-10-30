@@ -30,9 +30,7 @@ public class JHCRRepository
     private static final WeakHashMap<String, Class<?>> classes = new WeakHashMap<>();
 
     /**
-     * This method calls {@link #put(ClassLoader, Class, String)} with <code> clazz.getName() </code> as class name.
-     * 
-     * @see #put(Class<?>, String)
+     * This method calls {@link #put(String, Class)} with <code> clazz.getName() </code> as class name.
      * 
      * @param clazz
      *            the class to be stored
