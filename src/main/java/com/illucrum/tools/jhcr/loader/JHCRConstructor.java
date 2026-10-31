@@ -25,31 +25,35 @@ import com.illucrum.tools.jhcr.logger.JHCRLogger;
  */
 public class JHCRConstructor
 {
-    /**
-     * This method is to be used instead of constructors
-     * 
-     * @param className
-     *            the binary class name of the class to be instanciated
-     * @param types
-     *            Array containing the types of the arguments passed to the constructor
-     * @param values
-     *            Array containing the values of the arguments passed to the constructor
-     * @return resulting object
-     */
-    public static Object construct (String className, Class<?>[] types, Object[] values)
-    {
-        JHCRLogger.finest("Construct: " + className);
-        try
-        {
-            Class<?> clazz = ClassLoader.getSystemClassLoader().loadClass(className);
-            Constructor<?> constructor = clazz.getConstructor(types);
-            return constructor.newInstance(values);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+  private JHCRConstructor ()
+  {
+  }
 
-        return null;
+  /**
+   * This method is to be used instead of constructors
+   * 
+   * @param className
+   *          the binary class name of the class to be instanciated
+   * @param types
+   *          Array containing the types of the arguments passed to the constructor
+   * @param values
+   *          Array containing the values of the arguments passed to the constructor
+   * @return resulting object
+   */
+  public static Object construct (String className, Class<?>[] types, Object[] values)
+  {
+    JHCRLogger.finest("Construct: " + className);
+    try
+    {
+      Class<?> clazz = ClassLoader.getSystemClassLoader().loadClass(className);
+      Constructor<?> constructor = clazz.getConstructor(types);
+      return constructor.newInstance(values);
     }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+    }
+
+    return null;
+  }
 }

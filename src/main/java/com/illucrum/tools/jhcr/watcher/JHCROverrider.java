@@ -36,123 +36,127 @@ import com.illucrum.tools.jhcr.writer.JHCRRemapper;
  */
 public class JHCROverrider
 {
-    private static long counter = -1;
+  private static long counter = -1;
 
-    /**
-     * This method takes the bytecode as a byte array and attempts redefine the class it contains. If not possible, it attempts to override the original class.
-     * 
-     * <p>
-     * If the parameter is null or empty this method does nothing.
-     * </p>
-     * 
-     * @param bytecode
-     *            byte array read directly from the .class file.
-     */
-    public static void overrideClass (byte[] bytecode)
+  private JHCROverrider ()
+  {
+  }
+
+  /**
+   * This method takes the bytecode as a byte array and attempts redefine the class it contains. If not possible, it attempts to override the original class.
+   * 
+   * <p>
+   * If the parameter is null or empty this method does nothing.
+   * </p>
+   * 
+   * @param bytecode
+   *          byte array read directly from the .class file.
+   */
+  public static void overrideClass (byte[] bytecode)
+  {
+    JHCRLogger.finest("Overriding...");
+    if (bytecode == null || bytecode.length == 0)
     {
-        JHCRLogger.finest("Overriding...");
-        if (bytecode == null || bytecode.length == 0)
-        {
-            JHCRLogger.fine("Override class bytecode null or empty.");
-            return;
-        }
-
-        ClassReader reader = new ClassReader(bytecode);
-        String byteInternalName = reader.getClassName();
-        String byteBinaryName = byteInternalName.replaceAll("/", ".");
-
-        JHCRURLClassLoader loader = ((JHCRClassLoader) ClassLoader.getSystemClassLoader()).getURLClassLoader();
-
-        if (loader == null)
-        {
-            JHCRLogger.fine("No class Loader set. Can't override...");
-            return;
-        }
-
-        JHCRLogger.finer("Overriding: " + byteBinaryName);
-
-        Class<?> clazz = null;
-        try
-        {
-            clazz = loader.loadClass(byteBinaryName);
-        }
-        catch (Exception e)
-        {
-            JHCRLogger.fine("Could not load class: " + byteBinaryName);
-            return;
-        }
-
-        if (clazz != null)
-        {
-            String classBinaryName = clazz.getCanonicalName();
-            String classInternalName = classBinaryName.replaceAll("\\.", "/");
-
-            JHCRRemapper remapper = new JHCRRemapper(byteInternalName, classInternalName);
-
-            ClassWriter writer = new ClassWriter(reader, 0);
-            ClassVisitor visitor = new ClassRemapper(writer, remapper);
-            byte[] newBytecode;
-
-            if (!classBinaryName.equals(byteBinaryName))
-            {
-                reader.accept(visitor, 0);
-                newBytecode = writer.toByteArray();
-            }
-            else
-            {
-                newBytecode = bytecode;
-            }
-
-            try
-            {
-                JHCRLogger.finer("Redefining: " + classBinaryName);
-                ClassDefinition classDefinition = new ClassDefinition(clazz, newBytecode);
-                JHCRAgent.instrumentation.redefineClasses(classDefinition);
-                return;
-            }
-            catch (Exception e)
-            {
-                JHCRLogger.fine("Could not redefine class: " + byteBinaryName);
-            }
-
-            JHCRLogger.finer("Overriding: " + byteBinaryName);
-
-            counter++;
-            reader = new ClassReader(bytecode);
-            writer = new ClassWriter(reader, 0);
-            visitor = new ClassRemapper(writer, remapper);
-
-            String suffix = JHCRAgent.preferences.get("jhcr.suffix");
-            String newInternalName = byteInternalName + suffix + counter;
-            String newBinaryName = byteBinaryName + suffix + counter;
-
-            JHCRLogger.finest("New internal: " + newInternalName + "; New binary: " + newBinaryName);
-
-            remapper.setNewName(newInternalName);
-            reader.accept(visitor, 0);
-            newBytecode = writer.toByteArray();
-
-            JHCRCustomLoader customLoader = (JHCRCustomLoader) clazz.getClassLoader();
-
-            try
-            {
-                Class<?> newClazz = customLoader.defineClassWrapper(newBinaryName, newBytecode, 0, newBytecode.length);
-
-                if (loader.equals(customLoader))
-                {
-                    JHCRRepository.put(byteBinaryName, newClazz);
-                }
-                else
-                {
-                    JHCRCustomRepository.put(byteBinaryName, newClazz);
-                }
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-                JHCRLogger.fine("Error performing override.");
-            }
-
-        }
+      JHCRLogger.fine("Override class bytecode null or empty.");
+      return;
     }
+
+    ClassReader reader = new ClassReader(bytecode);
+    String byteInternalName = reader.getClassName();
+    String byteBinaryName = byteInternalName.replaceAll("/", ".");
+
+    JHCRURLClassLoader loader = ((JHCRClassLoader) ClassLoader.getSystemClassLoader()).getURLClassLoader();
+
+    if (loader == null)
+    {
+      JHCRLogger.fine("No class Loader set. Can't override...");
+      return;
+    }
+
+    JHCRLogger.finer("Overriding: " + byteBinaryName);
+
+    Class<?> clazz = null;
+    try
+    {
+      clazz = loader.loadClass(byteBinaryName);
+    }
+    catch (Exception e)
+    {
+      JHCRLogger.fine("Could not load class: " + byteBinaryName);
+      return;
+    }
+
+    if (clazz != null)
+    {
+      String classBinaryName = clazz.getCanonicalName();
+      String classInternalName = classBinaryName.replaceAll("\\.", "/");
+
+      JHCRRemapper remapper = new JHCRRemapper(byteInternalName, classInternalName);
+
+      ClassWriter writer = new ClassWriter(reader, 0);
+      ClassVisitor visitor = new ClassRemapper(writer, remapper);
+      byte[] newBytecode;
+
+      if (!classBinaryName.equals(byteBinaryName))
+      {
+        reader.accept(visitor, 0);
+        newBytecode = writer.toByteArray();
+      }
+      else
+      {
+        newBytecode = bytecode;
+      }
+
+      try
+      {
+        JHCRLogger.finer("Redefining: " + classBinaryName);
+        ClassDefinition classDefinition = new ClassDefinition(clazz, newBytecode);
+        JHCRAgent.instrumentation.redefineClasses(classDefinition);
+        return;
+      }
+      catch (Exception e)
+      {
+        JHCRLogger.fine("Could not redefine class: " + byteBinaryName);
+      }
+
+      JHCRLogger.finer("Overriding: " + byteBinaryName);
+
+      counter++;
+      reader = new ClassReader(bytecode);
+      writer = new ClassWriter(reader, 0);
+      visitor = new ClassRemapper(writer, remapper);
+
+      String suffix = JHCRAgent.preferences.get("jhcr.suffix");
+      String newInternalName = byteInternalName + suffix + counter;
+      String newBinaryName = byteBinaryName + suffix + counter;
+
+      JHCRLogger.finest("New internal: " + newInternalName + "; New binary: " + newBinaryName);
+
+      remapper.setNewName(newInternalName);
+      reader.accept(visitor, 0);
+      newBytecode = writer.toByteArray();
+
+      JHCRCustomLoader customLoader = (JHCRCustomLoader) clazz.getClassLoader();
+
+      try
+      {
+        Class<?> newClazz = customLoader.defineClassWrapper(newBinaryName, newBytecode, 0, newBytecode.length);
+
+        if (loader.equals(customLoader))
+        {
+          JHCRRepository.put(byteBinaryName, newClazz);
+        }
+        else
+        {
+          JHCRCustomRepository.put(byteBinaryName, newClazz);
+        }
+      }
+      catch (Exception e)
+      {
+        e.printStackTrace();
+        JHCRLogger.fine("Error performing override.");
+      }
+
+    }
+  }
 }

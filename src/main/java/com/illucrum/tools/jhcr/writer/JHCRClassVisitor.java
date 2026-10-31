@@ -39,7 +39,7 @@ public class JHCRClassVisitor extends ClassVisitor implements JHCRVariables
     /**
      * Calls super ({@link org.objectweb.asm.ClassVisitor#ClassVisitor(int, ClassVisitor)}) with ASM9 opcode and the same class visitor.
      * 
-     * @param classVisitor
+     * @param classVisitor the class visitor to which this visitor must delegate method calls. May be null.
      * 
      * @see org.objectweb.asm.ClassVisitor#ClassVisitor(int, ClassVisitor)
      */

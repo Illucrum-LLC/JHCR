@@ -27,62 +27,66 @@ import com.illucrum.tools.jhcr.logger.JHCRLogger;
  */
 public class JHCRRepository
 {
-    private static final WeakHashMap<String, Class<?>> classes = new WeakHashMap<>();
+  private static final WeakHashMap<String, Class<?>> classes = new WeakHashMap<>();
 
-    /**
-     * This method calls {@link #put(String, Class)} with <code> clazz.getName() </code> as class name.
-     * 
-     * @param clazz
-     *            the class to be stored
-     */
-    public static synchronized void put (Class<?> clazz)
+  private JHCRRepository ()
+  {
+  }
+
+  /**
+   * This method calls {@link #put(String, Class)} with <code> clazz.getName() </code> as class name.
+   * 
+   * @param clazz
+   *          the class to be stored
+   */
+  public static synchronized void put (Class<?> clazz)
+  {
+    put(clazz.getName(), clazz);
+  }
+
+  /**
+   * It stores a class given it's name. As the class name is a separate argument, you can overwrite already stored classes.
+   * 
+   * @param clazz
+   *          the class to be stored
+   * @param className
+   *          the canonical name of the class to be stored.
+   */
+  public static synchronized void put (String className, Class<?> clazz)
+  {
+    JHCRLogger.finer("Saving " + className + "...");
+
+    classes.put(className, clazz);
+  }
+
+  /**
+   * Returns a stored class given it's name. May return null.
+   * 
+   * @param className
+   *          the name of the class to be returned
+   * @return returns the class or null if none is found
+   */
+  public static synchronized Class<?> get (String className)
+  {
+    JHCRLogger.finer("Retrieving " + className + "...");
+
+    return classes.get(className);
+  }
+
+  /**
+   * Returns a string of the contents of the repository.
+   * 
+   * @return the contents of the repository.
+   */
+  public static synchronized String staticToString ()
+  {
+    String result = "JHCRRepository:\n";
+
+    for (Entry<String, Class<?>> e : classes.entrySet())
     {
-        put(clazz.getName(), clazz);
+      result += "\t - " + e.getKey() + " -> " + e.getValue().getName() + "\n";
     }
 
-    /**
-     * It stores a class given it's name. As the class name is a separate argument, you can overwrite already stored classes.
-     * 
-     * @param clazz
-     *            the class to be stored
-     * @param className
-     *            the canonical name of the class to be stored.
-     */
-    public static synchronized void put (String className, Class<?> clazz)
-    {
-        JHCRLogger.finer("Saving " + className + "...");
-
-        classes.put(className, clazz);
-    }
-
-    /**
-     * Returns a stored class given it's name. May return null.
-     * 
-     * @param className
-     *            the name of the class to be returned
-     * @return returns the class or null if none is found
-     */
-    public static synchronized Class<?> get (String className)
-    {
-        JHCRLogger.finer("Retrieving " + className + "...");
-
-        return classes.get(className);
-    }
-
-    /**
-     * Returns a string of the contents of the repository.
-     * 
-     * @return the contents of the repository.
-     */
-    public static synchronized String staticToString ()
-    {
-        String result = "JHCRRepository:\n";
-
-        for (Entry<String, Class<?>> e : classes.entrySet())
-        {
-            result += "\t - " + e.getKey() + " -> " + e.getValue().getName() + "\n";
-        }
-
-        return result;
-    }
+    return result;
+  }
 }

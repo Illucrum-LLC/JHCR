@@ -32,112 +32,117 @@ import com.illucrum.tools.jhcr.logger.JHCRLogger;
  */
 public class JHCRAgent
 {
-    public static Instrumentation instrumentation;
-    public static Map<String, String> preferences;
-    public static boolean loaded = false;
+  /** The instrumentation */
+  public static Instrumentation instrumentation;
+  /** Preferences loaded from args */
+  public static Map<String, String> preferences;
+  /** Set to true after {@link com.illucrum.tools.jhcr.JHCRThread} started */
+  public static boolean loaded = false;
 
-    /**
-     * When called for the first time, sets the instrumentation, parses arguments and runs the {@link com.illucrum.tools.jhcr.JHCRThread}
-     * thread. It also sets up the {@link com.illucrum.tools.jhcr.logger.JHCRLogger}.
-     * 
-     * <p>
-     * When run a more than once, just prints a warning.
-     * </p>
-     * 
-     * @param args
-     *            string of arguments
-     * @param inst
-     *            instrumentation
-     * 
-     * @see com.illucrum.tools.jhcr.JHCRThread
-     * @see com.illucrum.tools.jhcr.logger.JHCRLogger
-     */
-    public static void premain (String args, Instrumentation inst)
+  private JHCRAgent(){}
+
+  /**
+   * When called for the first time, sets the instrumentation, parses arguments and runs the {@link com.illucrum.tools.jhcr.JHCRThread}
+   * thread. It also sets up the {@link com.illucrum.tools.jhcr.logger.JHCRLogger}.
+   * 
+   * <p>
+   * When run a more than once, just prints a warning.
+   * </p>
+   * 
+   * @param args
+   *          string of arguments
+   * @param inst
+   *          instrumentation
+   * 
+   * @see com.illucrum.tools.jhcr.JHCRThread
+   * @see com.illucrum.tools.jhcr.logger.JHCRLogger
+   */
+  public static void premain (String args, Instrumentation inst)
+  {
+    if (instrumentation == null)
     {
-        if (instrumentation == null)
-        {
-            instrumentation = inst;
+      instrumentation = inst;
 
-            parseArgs(args);
+      parseArgs(args);
 
-            if (preferences.get("jhcr.logger.dateFormat") != null)
-                JHCRFormatter.setDateFormat(new SimpleDateFormat(preferences.get("jhcr.logger.dateFormat")));
-            if (preferences.get("jhcr.logger.prefix") != null)
-                JHCRFormatter.setPrefix(preferences.get("jhcr.logger.prefix"));
-            if (preferences.get("jhcr.logger.template") != null)
-                JHCRFormatter.setTemplate(preferences.get("jhcr.logger.template"));
+      if (preferences.get("jhcr.logger.dateFormat") != null)
+        JHCRFormatter.setDateFormat(new SimpleDateFormat(preferences.get("jhcr.logger.dateFormat")));
+      if (preferences.get("jhcr.logger.prefix") != null)
+        JHCRFormatter.setPrefix(preferences.get("jhcr.logger.prefix"));
+      if (preferences.get("jhcr.logger.template") != null)
+        JHCRFormatter.setTemplate(preferences.get("jhcr.logger.template"));
 
-            JHCRLogger.addHandler(preferences.getOrDefault("jhcr.logger.fileName", "JHCRLogger.log"));
+      JHCRLogger.addHandler(preferences.getOrDefault("jhcr.logger.fileName", "JHCRLogger.log"));
 
-            switch (preferences.getOrDefault("jhcr.logger.level", ""))
-            {
-                case "config":
-                    JHCRLogger.setLevel(Level.CONFIG);
-                    break;
-                case "fine":
-                    JHCRLogger.setLevel(Level.FINE);
-                    break;
-                case "finer":
-                    JHCRLogger.setLevel(Level.FINER);
-                    break;
-                case "finest":
-                    JHCRLogger.setLevel(Level.FINEST);
-                    break;
-                case "info":
-                    JHCRLogger.setLevel(Level.INFO);
-                    break;
-                case "severe":
-                    JHCRLogger.setLevel(Level.SEVERE);
-                    break;
-                case "warning":
-                    JHCRLogger.setLevel(Level.WARNING);
-                    break;
-                default:
-                    JHCRLogger.setLevel(Level.ALL);
-                    break;
-            }
+      switch (preferences.getOrDefault("jhcr.logger.level", ""))
+      {
+        case "config":
+          JHCRLogger.setLevel(Level.CONFIG);
+          break;
+        case "fine":
+          JHCRLogger.setLevel(Level.FINE);
+          break;
+        case "finer":
+          JHCRLogger.setLevel(Level.FINER);
+          break;
+        case "finest":
+          JHCRLogger.setLevel(Level.FINEST);
+          break;
+        case "info":
+          JHCRLogger.setLevel(Level.INFO);
+          break;
+        case "severe":
+          JHCRLogger.setLevel(Level.SEVERE);
+          break;
+        case "warning":
+          JHCRLogger.setLevel(Level.WARNING);
+          break;
+        default:
+          JHCRLogger.setLevel(Level.ALL);
+          break;
+      }
 
-            JHCRLogger.info("Agent " + JHCRAgent.class.getName() + " executed.");
+      JHCRLogger.info("Agent " + JHCRAgent.class.getName() + " executed.");
 
-            ClassLoader loader = ClassLoader.getSystemClassLoader();
+      ClassLoader loader = ClassLoader.getSystemClassLoader();
 
-            if (!(loader instanceof JHCRClassLoader))
-            {
-                JHCRLogger.fine("Class loader is not instance of JHCRClassLoader: " + loader.getClass().getCanonicalName());
-                return;
-            }
+      if (!(loader instanceof JHCRClassLoader))
+      {
+        JHCRLogger.fine("Class loader is not instance of JHCRClassLoader: " + loader.getClass().getCanonicalName());
+        return;
+      }
 
-            instrumentation.addTransformer(new JHCRTransformer());
+      instrumentation.addTransformer(new JHCRTransformer());
 
-            Thread jhcr = new JHCRThread();
-            jhcr.setDaemon(false);
-            jhcr.start();
-            loaded = true;
-        }
-        else
-        {
-            JHCRLogger.warning("Agent " + JHCRAgent.class.getName() + " executed once more!");
-        }
+      Thread jhcr = new JHCRThread();
+      jhcr.setDaemon(false);
+      jhcr.start();
+      loaded = true;
+    }
+    else
+    {
+      JHCRLogger.warning("Agent " + JHCRAgent.class.getName() + " executed once more!");
+    }
+  }
+
+  private static void parseArgs (String args)
+  {
+    preferences = new HashMap<>();
+    preferences.put("jhcr.suffix", "JHCR");
+
+    if (args == null)
+    {
+      JHCRLogger.fine("No args passed");
+      return;
     }
 
-    private static void parseArgs (String args)
+    for (String arg : args.split(";"))
     {
-        preferences = new HashMap<>();
-        preferences.put("jhcr.suffix", "JHCR");
-
-        if (args == null)
-        {
-            JHCRLogger.fine("No args passed");
-            return;
-        }
-
-        for (String arg : args.split(";"))
-        {
-            String[] pair = arg.split("=", 2);
-            if (pair.length == 2)
-            {
-                preferences.put(pair[0].trim(), pair[1].trim());
-            }
-        }
+      String[] pair = arg.split("=", 2);
+      if (pair.length == 2)
+      {
+        preferences.put(pair[0].trim(), pair[1].trim());
+      }
     }
+  }
 }

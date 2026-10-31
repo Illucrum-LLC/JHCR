@@ -34,31 +34,38 @@ import com.illucrum.tools.jhcr.writer.JHCRClassVisitor;
  */
 public class JHCRTransformer implements ClassFileTransformer
 {
-    @Override
-    public byte[] transform (ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-            throws IllegalClassFormatException
+  /**
+   * Default constructor
+   */
+  public JHCRTransformer ()
+  {
+  }
+
+  @Override
+  public byte[] transform (ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+      throws IllegalClassFormatException
+  {
+    if (loader instanceof JHCRCustomLoader)
     {
-        if (loader instanceof JHCRCustomLoader)
-        {
-            JHCRLogger.finer("Transforming: " + className);
+      JHCRLogger.finer("Transforming: " + className);
 
-            try
-            {
-                ClassReader classReader = new ClassReader(classfileBuffer);
-                ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-                ClassVisitor classVisitor = new JHCRClassVisitor(classWriter);
+      try
+      {
+        ClassReader classReader = new ClassReader(classfileBuffer);
+        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+        ClassVisitor classVisitor = new JHCRClassVisitor(classWriter);
 
-                classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
+        classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
 
-                return classWriter.toByteArray();
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-                JHCRLogger.fine("Error on class visiting: " + className + ": " + e.getMessage());
-            }
-        }
-
-        return classfileBuffer;
+        return classWriter.toByteArray();
+      }
+      catch (Exception e)
+      {
+        e.printStackTrace();
+        JHCRLogger.fine("Error on class visiting: " + className + ": " + e.getMessage());
+      }
     }
+
+    return classfileBuffer;
+  }
 }

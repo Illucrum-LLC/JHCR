@@ -30,11 +30,11 @@ public class JHCRLoadRewriter extends MethodVisitor implements JHCRVariables
     /**
      * Constructs a new JHCRLoadRewriter.
      * 
-     * @param mv
+     * @param mv passed as is to super
      */
     public JHCRLoadRewriter (AnalyzerAdapter mv)
     {
-        super(Opcodes.ASM9, mv);
+        super(API, mv);
     }
 
     @Override

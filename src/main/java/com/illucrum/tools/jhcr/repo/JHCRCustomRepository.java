@@ -26,62 +26,66 @@ import com.illucrum.tools.jhcr.logger.JHCRLogger;
  */
 public class JHCRCustomRepository
 {
-    private static final WeakHashMap <ClassLoader, WeakHashMap<String, Class<?>>> classes = new WeakHashMap<>();
+  private JHCRCustomRepository ()
+  {
+  }
 
-    /**
-     * This method calls {@link #put(String, Class)} with <code> clazz.getName() </code> as class name.
-     * 
-     * @see #put(String, Class<?>)
-     * 
-     * @param clazz
-     *            the class to be stored
-     */
-    public static synchronized void put (Class<?> clazz)
+  private static final WeakHashMap<ClassLoader, WeakHashMap<String, Class<?>>> classes = new WeakHashMap<>();
+
+  /**
+   * This method calls {@link #put(String, Class)} with <code> clazz.getName() </code> as class name.
+   * 
+   * @see #put(String, Class<?>)
+   * 
+   * @param clazz
+   *          the class to be stored
+   */
+  public static synchronized void put (Class<?> clazz)
+  {
+    JHCRCustomRepository.put(clazz.getName(), clazz);
+  }
+
+  /**
+   * It stores a class given a name.
+   * 
+   * @param className
+   *          the canonical name of the class to be stored.
+   * @param clazz
+   *          the class to be stored
+   */
+  public static synchronized void put (String className, Class<?> clazz)
+  {
+    ClassLoader loader = clazz.getClassLoader();
+
+    JHCRLogger.finer("Saving custom " + className + " for " + loader + "...");
+
+    WeakHashMap<String, Class<?>> classesMap = classes.get(loader);
+
+    if (classesMap == null)
     {
-        JHCRCustomRepository.put(clazz.getName(), clazz);
+      classesMap = new WeakHashMap<>();
+      classesMap.put(className, clazz);
+      classes.put(loader, classesMap);
+      return;
     }
 
-    /**
-     * It stores a class given a name.
-     * 
-     * @param className
-     *            the canonical name of the class to be stored.
-     * @param clazz
-     *            the class to be stored
-     */
-    public static synchronized void put (String className, Class<?> clazz)
-    {
-        ClassLoader loader = clazz.getClassLoader();
+    classesMap.put(className, clazz);
+  }
 
-        JHCRLogger.finer("Saving custom " + className + " for " + loader + "...");
+  /**
+   * Returns a stored class given it's defining class loader and a name. May return null.
+   * 
+   * @param loader
+   *          the defining class loader
+   * @param className
+   *          the name of the class to be returned
+   * @return returns the class or null if none is found
+   */
+  public static synchronized Class<?> get (ClassLoader loader, String className)
+  {
+    JHCRLogger.finer("Retrieving custom " + className + " for " + loader + "...");
+    WeakHashMap<String, Class<?>> classesMap = classes.get(loader);
 
-        WeakHashMap<String, Class<?>> classesMap = classes.get(loader);
-
-        if (classesMap == null)
-        {
-            classesMap = new WeakHashMap<>();
-            classesMap.put(className, clazz);
-            classes.put(loader, classesMap);
-            return;
-        }
-
-        classesMap.put(className, clazz);
-    }
-
-    /**
-     * Returns a stored class given it's defining class loader and a name. May return null.
-     * 
-     * @param loader
-     *            the defining class loader
-     * @param className
-     *            the name of the class to be returned
-     * @return returns the class or null if none is found
-     */
-    public static synchronized Class<?> get (ClassLoader loader, String className)
-    {
-        JHCRLogger.finer("Retrieving custom " + className + " for " + loader + "...");
-        WeakHashMap<String, Class<?>> classesMap = classes.get(loader);
-
-        return classesMap == null ? null : classesMap.get(className);
-    }
+    return classesMap == null ? null : classesMap.get(className);
+  }
 }

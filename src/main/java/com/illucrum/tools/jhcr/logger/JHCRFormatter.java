@@ -25,68 +25,84 @@ import java.util.logging.LogRecord;
  */
 public class JHCRFormatter extends Formatter
 {
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
-    private static String prefix = "JHCR";
-    private static String template =  "[%s] %s: %s: %s\n";
+  private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
+  private static String prefix = "JHCR";
+  private static String template = "[%s] %s: %s: %s\n";
 
-    @Override
-    public String format (LogRecord record)
-    {
-        String timeStamp = dateFormat.format(new Date());
-        return String.format(template, timeStamp, prefix, record.getLevel().toString(), record.getMessage());
-    }
+  /**
+   * Default constructor
+   */
+  public JHCRFormatter ()
+  {
+  }
 
-    /**
-     * Getter for the date format used when printing logs.
-     * 
-     * @return current date format
-     */
-    public static SimpleDateFormat getDateFormat() {
-        return dateFormat;
-    }
+  @Override
+  public String format (LogRecord record)
+  {
+    String timeStamp = dateFormat.format(new Date());
+    return String.format(template, timeStamp, prefix, record.getLevel().toString(), record.getMessage());
+  }
 
-    /**
-     * Setter for the date format used when printing logs. Any changes apply immediately for following logs.
-     * 
-     * @param format the format to be used.
-     */
-    public static void setDateFormat(SimpleDateFormat format) {
-        dateFormat = format;
-    }
+  /**
+   * Getter for the date format used when printing logs.
+   * 
+   * @return current date format
+   */
+  public static SimpleDateFormat getDateFormat ()
+  {
+    return dateFormat;
+  }
 
-    /**
-     * Getter for the prefix used when printing logs.
-     * 
-     * @return current prefix
-     */
-    public static String getPrefix() {
-        return prefix;
-    }
+  /**
+   * Setter for the date format used when printing logs. Any changes apply immediately for following logs.
+   * 
+   * @param format
+   *          the format to be used.
+   */
+  public static void setDateFormat (SimpleDateFormat format)
+  {
+    dateFormat = format;
+  }
 
-    /**
-     * Setter for the prefix used when printing logs. Any changes apply immediately for following logs.
-     * 
-     * @param pref the prefix to be used.
-     */
-    public static void setPrefix(String pref) {
-        prefix = pref;
-    }
+  /**
+   * Getter for the prefix used when printing logs.
+   * 
+   * @return current prefix
+   */
+  public static String getPrefix ()
+  {
+    return prefix;
+  }
 
-    /**
-     * Getter for the template used when printing logs.
-     * 
-     * @return current template
-     */
-    public static String getTemplate() {
-        return template;
-    }
+  /**
+   * Setter for the prefix used when printing logs. Any changes apply immediately for following logs.
+   * 
+   * @param pref
+   *          the prefix to be used.
+   */
+  public static void setPrefix (String pref)
+  {
+    prefix = pref;
+  }
 
-    /**
-     * Setter for the template used when printing logs. Any changes apply immediately for following logs.
-     * 
-     * @param tpl the template to be used.
-     */
-    public static void setTemplate(String tpl) {
-        template = tpl;
-    }
+  /**
+   * Getter for the template used when printing logs.
+   * 
+   * @return current template
+   */
+  public static String getTemplate ()
+  {
+    return template;
+  }
+
+  /**
+   * Setter for the template used when printing logs. Any changes apply immediately for following logs.
+   * 
+   * @param tpl
+   *          the template to be used.
+   */
+  public static void setTemplate (String tpl)
+  {
+    template = tpl;
+  }
 }
